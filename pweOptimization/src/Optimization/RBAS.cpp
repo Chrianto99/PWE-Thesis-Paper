@@ -9,6 +9,7 @@ void RBAS::run(){
 
     while (currentNumCycles < numCycles){
 
+        cout << currentNumCycles << endl;
         vector<Solution> ants;
 
         for (int i = 0; i < numAntsPerCycle; ++i) {
@@ -22,6 +23,7 @@ void RBAS::run(){
         ParetoHandler::updateParetoArchive(paretoArchive, ants , 200);
 
         updatePheromones(ants);
+        currentNumCycles++;
 
 
 

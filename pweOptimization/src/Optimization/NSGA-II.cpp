@@ -7,7 +7,7 @@
 
 void NSGAII::run() {
 
-    vector<Solution> population = createInitialPopulation();
+    vector<Solution> population = createInitialPopulation();//parallelize
 
     while (genCount < numGenerations) {
 
@@ -16,16 +16,18 @@ void NSGAII::run() {
             ParetoHandler::calculateCrowdingDistance(population);
         }
 
-        vector<Solution> offspringList = generateOffspring(population);
+        vector<Solution> offspringList = generateOffspring(population); //parallelize
         vector<Solution> offspring(offspringList.begin(), offspringList.end());
         population.insert(population.end(), offspring.begin(), offspring.end());
 
 
-        ParetoHandler::fastNonDominatedSorting(population);
-        ParetoHandler::calculateCrowdingDistance(population);
-        ParetoHandler::updateParetoArchive(paretoArchive, population, 200);
+        ParetoHandler::fastNonDominatedSorting(population); //parallelize
+        ParetoHandler::calculateCrowdingDistance(population); //parallelize
+        ParetoHandler::updateParetoArchive(paretoArchive, population, 200); //parallelize
 
-        population = selectNextGeneration(population);
+        vector<Solution> a = paretoArchive;
+
+        population = selectNextGeneration(population); //parallelize
         genCount++;
     }
 

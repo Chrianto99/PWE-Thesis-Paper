@@ -30,11 +30,11 @@ public class Main {
 
 
         // Set transmitter parameters
-        TxConfig txConfig = new TxConfig(160, 1, 0, wavelength);
+        TxConfig txConfig = new TxConfig(1600, 1, 0, wavelength);
 
 
         //Set SDM Parameters
-        TileConfig tileConfig = new TileConfig(20, wavelength / 2, 4, wavelength);
+        TileConfig tileConfig = new TileConfig(40, wavelength / 10, 4, wavelength);
 
 
         int[] numberOfTilesVector = {16};

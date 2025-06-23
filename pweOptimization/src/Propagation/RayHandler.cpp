@@ -170,6 +170,7 @@ void RayHandler::estimateSignal() {
         delaySpread = sqrt(mean_delay_sq - (mean_delay * mean_delay));
         double tolerance = 1e-14;  // Adjust the tolerance as necessary
         if (abs(delaySpread) < tolerance) delaySpread = 0;
+        if (isnan(delaySpread)) delaySpread = 1;
 
         systemState.addToDelaySpreads(delaySpread);
         systemState.addToPowers(power);

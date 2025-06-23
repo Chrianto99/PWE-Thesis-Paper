@@ -15,7 +15,7 @@ public class TileConfig {
         this.numElements = numElements;
         this.elementSpacing = elementSpacing;
         this.elementGain = elementGain;
-        this.maxGain = 10000 * elementGain * Math.pow(numElements, 2);
+        this.maxGain = elementGain * Math.pow(numElements, 2);
         this.maxDim = elementSpacing * numElements;
         this.wavelength = wavelength;
 

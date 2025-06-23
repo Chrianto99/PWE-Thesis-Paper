@@ -62,8 +62,8 @@ public:
 
     void setMaxDelaySpread() {
         maxDelaySpread = *std::max_element(receiverDelaySpreads.begin(), receiverDelaySpreads.end());
-        //double sum = std::accumulate(receiverDelaySpreads.begin(), receiverDelaySpreads.end(), 0.0);
-        //maxDelaySpread = sum / receiverDelaySpreads.size();
+        double sum = std::accumulate(receiverDelaySpreads.begin(), receiverDelaySpreads.end(), 0.0);
+        maxDelaySpread = sum / receiverDelaySpreads.size();
 
     }
 
