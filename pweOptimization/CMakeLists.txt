@@ -47,6 +47,7 @@ add_executable(pweOptimization
         src/Optimization/ParetoHandler.cpp
         include/Optimization/RBAS.h
         src/Optimization/RBAS.cpp
+        include/Optimization/HyperVolumeCalculator.h
 )
 
 include(FetchContent)

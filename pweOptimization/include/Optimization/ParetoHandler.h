@@ -14,20 +14,25 @@
 #include "map"
 using namespace std;
 
-class ParetoHandler{
+class ParetoHandler {
 
 
 public:
 
     static void fastNonDominatedSorting(vector<Solution> &solutions);
 
-    static void updateParetoArchive(vector<Solution> &paretoArchive, vector<Solution> &newSolutions, int maxCapacity);
+    static vector<Solution>
+    updateParetoArchive(vector<Solution> &paretoArchive, vector<Solution> &newSolutions, int maxCapacity);
 
     static void calculateCrowdingDistance(vector<Solution> &solutions);
 
-    static bool dominates(const Solution &a,const Solution &b);
+    static bool dominates(const Solution &a, const Solution &b);
 
+    static bool equals(const Solution &a, const Solution &b);
 
+    static bool checkRepetitionMarks(int currentRepMark);
+
+    static map<int, vector<Solution>>
+    mergeOutputs(map<int, vector<Solution>> &oldArchive, map<int, vector<Solution>> &newArchive);
 
 };
-

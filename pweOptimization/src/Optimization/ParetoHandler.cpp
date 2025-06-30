@@ -57,7 +57,7 @@ void ParetoHandler::fastNonDominatedSorting(std::vector<Solution>& solutions) {
 }
 
 
-void ParetoHandler::updateParetoArchive(vector<Solution>& paretoArchive,vector<Solution>& newSolutions, int maxCapacity) {
+vector<Solution> ParetoHandler::updateParetoArchive(vector<Solution>& paretoArchive,vector<Solution>& newSolutions, int maxCapacity) {
 
     vector<Solution> combinedFront = paretoArchive;
     combinedFront.insert(combinedFront.end(), newSolutions.begin(), newSolutions.end());
@@ -72,10 +72,11 @@ void ParetoHandler::updateParetoArchive(vector<Solution>& paretoArchive,vector<S
                 isDominated = true;
                 break;
             }
-            if (dominates(candidate, *it)) {
+//            if (dominates(candidate, *it)) {
+//                it = updatedArchive.erase(it);
+            else {
+                //++it;
                 it = updatedArchive.erase(it);
-            } else {
-                ++it;
             }
         }
 
@@ -92,7 +93,8 @@ void ParetoHandler::updateParetoArchive(vector<Solution>& paretoArchive,vector<S
     if (updatedArchive.size() > maxCapacity)
         updatedArchive.resize(maxCapacity);
 
-    paretoArchive = updatedArchive;
+
+    return updatedArchive;
 }
 
 
@@ -148,6 +150,35 @@ bool ParetoHandler::dominates(const Solution& p,const Solution& q) {
     if (p.getMinPower()  > q.getMinPower() ) betterInAny = true;
 
     return betterInAny && !worseInAny;
+}
+
+bool ParetoHandler::checkRepetitionMarks(int currentRepMark){
+
+    vector<int> validMarks = {250, 500, 1000, 2000, 3000, 5000};
+
+    if (find(validMarks.begin(), validMarks.end(), currentRepMark) != validMarks.end()) {
+        return true;
+    }
+
+    return false;
+}
+
+map<int,vector<Solution>> ParetoHandler::mergeOutputs(map<int,vector<Solution>> &currentOutput, map<int,vector<Solution>> &newOutput){
+
+    if (currentOutput.empty()) return newOutput;
+
+    map<int,vector<Solution>> updatedOutput;
+    for (auto kvP : currentOutput){
+        int repMark = kvP.first;
+        vector<Solution> &currentArchive = kvP.second;
+        vector<Solution> &newArchive = newOutput[repMark];
+        vector<Solution> updatedArchive = updateParetoArchive(currentArchive, newArchive, 200);
+
+        updatedOutput[repMark] = updatedArchive;
+
+    }
+
+    return updatedOutput;
 }
 
 

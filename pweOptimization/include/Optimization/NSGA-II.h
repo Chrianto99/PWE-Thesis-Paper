@@ -25,6 +25,8 @@ private:
     double mutationChance;
     std::mt19937 randGen;
     vector<Solution> paretoArchive;
+    map<int,vector<Solution>> output;
+
 
 public:
 
@@ -90,6 +92,10 @@ public:
     const vector<Solution> &getParetoArchive() const;
 
     void setParetoArchive(const vector<Solution> &paretoArchive);
+
+    map<int,vector<Solution>> &getOutput(){
+        return output;
+    }
 
 
 };

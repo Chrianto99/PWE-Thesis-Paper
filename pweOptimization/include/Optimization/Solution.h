@@ -66,6 +66,7 @@ public:
         systemState.addActiveMode(pair);
     }
 
+
     bool operator<(const Solution& other) const {
         // First order by frontRank (ascending)
         if (frontRank != other.frontRank)

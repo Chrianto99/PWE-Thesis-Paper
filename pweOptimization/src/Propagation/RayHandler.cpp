@@ -25,67 +25,6 @@ SystemState RayHandler::propagate() {
 
     estimateSignal();
     restoreSystem();
-    SystemState systemState = this->systemState;
-
-    return systemState;
-
-}
-
-SystemState RayHandler::propagateRandom() {
-
-    modeHandler.activateRandomModes(systemState);
-    std::vector<Ray> currentRaysCopy = graph->getInputRays();
-    std::vector<Ray> currentRays = currentRaysCopy;
-
-    while (!currentRays.empty()) {
-        //cout << "New Ray Set of Size:  " << currentRays.size() << endl;
-
-        for (Ray &ray: currentRays) {
-
-            reflectRay(ray);
-        }
-
-        currentRays.clear();
-        currentRays = newRays;
-        newRays.clear();
-    }
-
-    estimateSignal();
-    restoreSystem();
-    SystemState systemState = std::move(this->systemState);
-
-    return systemState;
-
-}
-
-SystemState RayHandler::propagateGivenModes(const vector<pair<int,int>> &modeList) {
-
-    for (pair pair : modeList){
-        Node &node = graph->getNode(pair.first);
-        node.setActiveMode(pair.second);
-        node.setActive(true);
-        systemState.addActiveMode(pair);
-
-    }
-
-    std::vector<Ray> currentRaysCopy = graph->getInputRays();
-    std::vector<Ray> currentRays = currentRaysCopy;
-
-    while (!currentRays.empty()) {
-        //cout << "New Ray Set of Size:  " << currentRays.size() << endl;
-
-        for (Ray &ray: currentRays) {
-
-            reflectRay(ray);
-        }
-
-        currentRays.clear();
-        currentRays = newRays;
-        newRays.clear();
-    }
-
-    estimateSignal();
-    restoreSystem();
     SystemState systemState = std::move(this->systemState);
 
     return systemState;
@@ -110,10 +49,6 @@ void RayHandler::reflectRay(Ray &ray) {
     string key = to_string(currentEdge.getId()) + " " + to_string(currentNode.getActiveMode());
 
     const vector<double> &outputDist = currentNode.getDistFromRoutingTable(key);
-    //cout << currentNode.getId()  << " " << currentEdge.getId() << endl;
-
-    //cout << "Next Ray: "  << endl;
-   // for (const double &value: outputDist)        cout << "value: " << value;
 
     for (const double &value: outputDist) {
         int outputEdgeId = (int) floor(value);
@@ -170,7 +105,7 @@ void RayHandler::estimateSignal() {
         delaySpread = sqrt(mean_delay_sq - (mean_delay * mean_delay));
         double tolerance = 1e-14;  // Adjust the tolerance as necessary
         if (abs(delaySpread) < tolerance) delaySpread = 0;
-        if (isnan(delaySpread)) delaySpread = 1;
+        if (isnan(delaySpread)) delaySpread = 1e-6;
 
         systemState.addToDelaySpreads(delaySpread);
         systemState.addToPowers(power);
@@ -200,6 +135,65 @@ void RayHandler::restoreSystem() {
         node.setActive(false);
     }
 
+}
+
+SystemState RayHandler::propagateRandom() {
+
+    modeHandler.activateRandomModes(systemState);
+    std::vector<Ray> currentRaysCopy = graph->getInputRays();
+    std::vector<Ray> currentRays = currentRaysCopy;
+
+    while (!currentRays.empty()) {
+        //cout << "New Ray Set of Size:  " << currentRays.size() << endl;
+
+        for (Ray &ray: currentRays) {
+
+            reflectRay(ray);
+        }
+
+        currentRays.clear();
+        currentRays = newRays;
+        newRays.clear();
+    }
+
+    estimateSignal();
+    restoreSystem();
+    SystemState systemState = std::move(this->systemState);
+
+    return systemState;
+
+}
+
+SystemState RayHandler::propagateGivenModes(const vector<pair<int,int>> &modeList) {
+
+    for (pair pair : modeList){
+        Node &node = graph->getNode(pair.first);
+        node.setActiveMode(pair.second);
+        node.setActive(true);
+        systemState.addActiveMode(pair);
+    }
+
+    std::vector<Ray> currentRaysCopy = graph->getInputRays();
+    std::vector<Ray> currentRays = currentRaysCopy;
+
+    while (!currentRays.empty()) {
+        //cout << "New Ray Set of Size:  " << currentRays.size() << endl;
+
+        for (Ray &ray: currentRays) {
+
+            reflectRay(ray);
+        }
+
+        currentRays.clear();
+        currentRays = newRays;
+        newRays.clear();
+    }
+
+    estimateSignal();
+    restoreSystem();
+    SystemState systemState = std::move(this->systemState);
+
+    return systemState;
 
 }
 

@@ -9,7 +9,41 @@ void RBAS::run(){
 
     while (currentNumCycles < numCycles){
 
-        cout << currentNumCycles << endl;
+        vector<Solution> ants;
+        int i = 0;
+        while (i < numAntsPerCycle){
+            SystemState systemState = rayHandler.propagate();
+            Solution ant = Solution(systemState);
+            if (ant.getMinPower() > 0) {
+                ants.push_back(ant);
+                i++;
+            }
+
+        }
+
+        ParetoHandler::fastNonDominatedSorting(ants);
+        ParetoHandler::calculateCrowdingDistance(ants);
+        paretoArchive = ParetoHandler::updateParetoArchive(paretoArchive, ants , 200);
+        vector<Solution> par = paretoArchive;
+
+        if (ParetoHandler::checkRepetitionMarks(numAntsPerCycle * currentNumCycles)){
+            output[numAntsPerCycle * currentNumCycles] = paretoArchive;
+        }
+
+        updatePheromones(ants);
+        currentNumCycles++;
+
+
+
+    }
+
+}
+
+void RBAS::runBruteForce(){
+    int currentNumCycles = 0;
+
+    while (currentNumCycles < numCycles){
+
         vector<Solution> ants;
 
         for (int i = 0; i < numAntsPerCycle; ++i) {
@@ -20,9 +54,12 @@ void RBAS::run(){
 
         ParetoHandler::fastNonDominatedSorting(ants);
         ParetoHandler::calculateCrowdingDistance(ants);
-        ParetoHandler::updateParetoArchive(paretoArchive, ants , 200);
+        paretoArchive = ParetoHandler::updateParetoArchive(paretoArchive, ants , 200);
 
-        updatePheromones(ants);
+        if (ParetoHandler::checkRepetitionMarks(numAntsPerCycle * currentNumCycles)){
+            output[numAntsPerCycle * currentNumCycles] = paretoArchive;
+        }
+
         currentNumCycles++;
 
 
@@ -35,8 +72,8 @@ void RBAS::updatePheromones(vector<Solution> &ants) {
 
     double alpha = 1;
     for (auto &ant : ants){
-
-        double pheromoneAmount = intensityFactor * exp(-alpha * ant.getFrontRank());
+        if (ant.getCrowdingDistance() == std::numeric_limits<double>::infinity()) ant.setCrowdingDistance(1);
+        double pheromoneAmount = ant.getCrowdingDistance() * intensityFactor * exp(-alpha * ant.getFrontRank());
         modeHandler->modifyModeLikelihood(ant.getModeList(),pheromoneAmount);
 
     }

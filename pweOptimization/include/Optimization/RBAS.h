@@ -24,10 +24,13 @@ private:
     double intensityFactor;
     std::mt19937 randGen;
     vector<Solution> paretoArchive;
+    map<int,vector<Solution>> output;
+
 
 public:
 
-    RBAS(Graph& graph, int numAntsPerCycle, int numCycles, double evaporationRate, double intensityFactor) : graph(&graph),
+    RBAS(Graph& graph, int numAntsPerCycle, int numCycles, double evaporationRate, double intensityFactor):
+    graph(&graph),
     rayHandler(RayHandler(graph)),
     modeHandler(&rayHandler.getModeHandler()),
     numAntsPerCycle(numAntsPerCycle),
@@ -37,7 +40,13 @@ public:
 
     void run();
 
+    void runBruteForce();
+
     void updatePheromones(vector<Solution> &ants);
+
+    map<int,vector<Solution>> &getOutput(){
+        return output;
+    }
 
 
 };
