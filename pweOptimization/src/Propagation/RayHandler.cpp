@@ -11,7 +11,6 @@ SystemState RayHandler::propagate() {
     std::vector<Ray> currentRaysCopy = graph->getInputRays();
     std::vector<Ray> currentRays = currentRaysCopy;
     while (!currentRays.empty()) {
-        //cout << "New Ray Set of Size:  " << currentRays.size() << endl;
 
         for (Ray &ray: currentRays) {
 
@@ -35,6 +34,7 @@ SystemState RayHandler::propagate() {
 
 
 void RayHandler::reflectRay(Ray &ray) {
+
     Node &currentNode = graph->getNode(ray.getCurrentNodeId());
     Edge &currentEdge = graph->getEdge(ray.getLastEdgeId());
 
@@ -59,15 +59,12 @@ void RayHandler::reflectRay(Ray &ray) {
         double pathLoss = newEdge.getPathLoss();
         double totalLength = ray.getLength() + newEdge.getLength();
         double totalPower = ray.getPower() * pathLoss * gain;
-        //cout << "Total Power : " << totalPower << endl;
 
         if (totalPower < threshold) {
-            //cout << "Ray Discarded" << endl;
             continue;
         }
 
         if (destNode.getType() == "Rx") {
-            //cout << "Ray Reached Receiver" << endl;
             destNode.addToRays(ray);
             continue;
         }
@@ -144,7 +141,6 @@ SystemState RayHandler::propagateRandom() {
     std::vector<Ray> currentRays = currentRaysCopy;
 
     while (!currentRays.empty()) {
-        //cout << "New Ray Set of Size:  " << currentRays.size() << endl;
 
         for (Ray &ray: currentRays) {
 
@@ -177,7 +173,6 @@ SystemState RayHandler::propagateGivenModes(const vector<pair<int,int>> &modeLis
     std::vector<Ray> currentRays = currentRaysCopy;
 
     while (!currentRays.empty()) {
-        //cout << "New Ray Set of Size:  " << currentRays.size() << endl;
 
         for (Ray &ray: currentRays) {
 

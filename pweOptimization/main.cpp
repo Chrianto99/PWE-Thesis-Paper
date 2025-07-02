@@ -15,7 +15,7 @@ using json = nlohmann::json;
 int main() {
 
     Graph* g = new Graph();
-    g->loadGraph("Graphs_15x10x5/Rx_4/Tiles_16/Graph_0.json", *g);
+    g->loadGraph("Graphs_15x10x5/Rx_4/Tiles_16/Graph_2.json", *g);
 
 
 //    auto start = std::chrono::high_resolution_clock::now();
@@ -48,6 +48,7 @@ int main() {
         RBAS alg = RBAS(*g,50,100,0.8,2);
         alg.run();
         map<int,vector<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
+        currentOutput = alg.getOutput();
         if (i == 9){
             cout << "a" << endl;
         }

@@ -2,7 +2,6 @@
 // Created by Christos on 6/16/2025.
 //
 #include "Optimization/ParetoHandler.h"
-
 void ParetoHandler::fastNonDominatedSorting(std::vector<Solution>& solutions) {
     std::vector<std::vector<Solution *>> fronts;
     std::map<Solution *, int> dominationCount;
@@ -72,11 +71,11 @@ vector<Solution> ParetoHandler::updateParetoArchive(vector<Solution>& paretoArch
                 isDominated = true;
                 break;
             }
-//            if (dominates(candidate, *it)) {
-//                it = updatedArchive.erase(it);
-            else {
-                //++it;
+            if (dominates(candidate, *it)) {
                 it = updatedArchive.erase(it);
+            }
+            else {
+                ++it;
             }
         }
 
@@ -86,7 +85,7 @@ vector<Solution> ParetoHandler::updateParetoArchive(vector<Solution>& paretoArch
     }
 
     calculateCrowdingDistance(updatedArchive);
-    std::sort(updatedArchive.begin(), updatedArchive.end(), [](const Solution& a, const Solution& b) {
+    sort(updatedArchive.begin(), updatedArchive.end(), [](const Solution& a, const Solution& b) {
         return a.getCrowdingDistance() > b.getCrowdingDistance();
     });
 
@@ -102,52 +101,75 @@ void ParetoHandler::calculateCrowdingDistance(vector<Solution>& solutions) {
     int n = solutions.size();
     if (n == 0) return;
 
-    for (auto& sol : solutions)
+    for (auto& sol : solutions) {
         sol.setCrowdingDistance(0.0);
-
-    auto compareDelay = [](Solution& a, Solution& b) {
-        return a.getMaxDelaySpread() < b.getMaxDelaySpread() ;
-    };
-    auto comparePower = [](Solution& a, Solution& b) {
-        return a.getMinPower() < b.getMinPower();
-    };
-
-    sort(solutions.begin(), solutions.end(), compareDelay);
-    solutions.front().setCrowdingDistance(std::numeric_limits<double>::infinity());
-    solutions.back().setCrowdingDistance(std::numeric_limits<double>::infinity());
-
-    double maxD = solutions.back().getMaxDelaySpread() - solutions.front().getMaxDelaySpread();
-    if (maxD > 0.0) {
-        for (int i = 1; i < n - 1; ++i) {
-            solutions[i].setCrowdingDistance(solutions[i].getCrowdingDistance() +
-            (solutions[i + 1].getMaxDelaySpread() - solutions[i - 1].getMaxDelaySpread()) / maxD );
-
-        }
     }
 
-    std::sort(solutions.begin(), solutions.end(), comparePower);
-    solutions.front().setCrowdingDistance(std::numeric_limits<double>::infinity());
-    solutions.back().setCrowdingDistance(std::numeric_limits<double>::infinity());
-
-    double maxP = solutions.back().getMinPower() - solutions.front().getMinPower();
-    if (maxP > 0.0) {
-        for (int i = 1; i < n - 1; ++i) {
-            solutions[i].setCrowdingDistance(solutions[i].getCrowdingDistance() +
-            (solutions[i + 1].getMinPower() - solutions[i - 1].getMinPower()) / maxP );
+    if (n < 3) {
+        // If fewer than 3 solutions, assign infinity to all
+        for (auto& sol : solutions) {
+            sol.setCrowdingDistance(numeric_limits<double>::infinity());
         }
+        return;
     }
 
+    // Get objective names from the first solution
+    const auto objectivesCopy = solutions[0].getObjectives();
+
+
+    for (const auto& pair : objectivesCopy) {
+
+
+        const auto& objectiveName = pair.first;
+
+        sort(solutions.begin(), solutions.end(),
+                  [&objectiveName](const Solution& a, const Solution& b) {
+                      return a.getObjectives().at(objectiveName) < b.getObjectives().at(objectiveName);
+                  });
+
+        // Assign infinite distance to boundary solutions
+        solutions.front().setCrowdingDistance(numeric_limits<double>::infinity());
+        solutions.back().setCrowdingDistance(numeric_limits<double>::infinity());
+
+        double minObj = solutions.front().getObjectives().at(objectiveName);
+        double maxObj = solutions.back().getObjectives().at(objectiveName);
+
+        if (maxObj - minObj == 0.0)
+            continue;  // Avoid division by zero
+
+        // Compute normalized distances for the rest
+        for (int i = 1; i < n - 1; ++i) {
+            double prev = solutions[i - 1].getObjectives().at(objectiveName);
+            double next = solutions[i + 1].getObjectives().at(objectiveName);
+            double normDist = (next - prev) / (maxObj - minObj);
+
+            double current = solutions[i].getCrowdingDistance();
+            solutions[i].setCrowdingDistance(current + normDist);
+        }
+    }
 }
 
-bool ParetoHandler::dominates(const Solution& p,const Solution& q) {
+bool ParetoHandler::dominates(const Solution& p, const Solution& q) {
     bool betterInAny = false;
     bool worseInAny = false;
 
-    if (p.getMaxDelaySpread() > q.getMaxDelaySpread()) worseInAny = true;
-    if (p.getMinPower() < q.getMinPower() ) worseInAny = true;
+    for (const auto& [key, p_val] : p.getObjectives()) {
+        auto it = q.getObjectives().find(key);
+        if (it == q.getObjectives().end()) {
+            // Objective missing in q; cannot compare fairly
+            continue;
+        }
 
-    if (p.getMaxDelaySpread() < q.getMaxDelaySpread()) betterInAny = true;
-    if (p.getMinPower()  > q.getMinPower() ) betterInAny = true;
+        double q_val = it->second;
+
+        if (p_val < q_val) {
+            betterInAny = true;
+        } else if (p_val > q_val) {
+            worseInAny = true;
+        }
+
+        if (worseInAny) break; // early exit: cannot dominate
+    }
 
     return betterInAny && !worseInAny;
 }

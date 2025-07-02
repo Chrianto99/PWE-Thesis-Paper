@@ -7,11 +7,16 @@
 
 #endif //PWEOPTIMIZATION_SOLUTION_H
 #include "Propagation/SystemState.h"
+#include "map"
+#include "vector"
 #pragma once
+
 class Solution{
 private:
 
-    SystemState systemState;
+    vector<pair<int, int>> input;
+    vector<string> print;
+    map<string,double> objectives;
     int frontRank, crowdingDistanceRank;
     double crowdingDistance;
 
@@ -20,8 +25,22 @@ public:
     Solution() = default;
 
     Solution(SystemState &systemState){
-        this->systemState = systemState;
+        this->input = systemState.getModeList();
+        objectives["averageDelaySpread"] = systemState.getMaxDelaySpread();
+        objectives["averagePower"] = -systemState.getMinPower();
+        for (auto &pair : input) {
+            print.push_back(to_string(pair.first) + "." + to_string(pair.second));
+        }
+        std::ostringstream oss;
+        oss.precision(15); // set to a high enough value (15 is safe for double)
+        for (auto &obj : objectives){
+            oss << std::fixed << obj.second;
+            print.push_back(oss.str());
+        }
+
     }
+
+
     int getFrontRank() const {
         return frontRank;
     }
@@ -38,32 +57,16 @@ public:
         crowdingDistance = distance;
     }
 
-    int getCrowdingDistanceRank() const {
-        return crowdingDistance;
+    vector<pair<int,int>> &getModeList(){
+        return input;
     }
 
-    void setCrowdingDistanceRank(int distance) {
-        crowdingDistance = distance;
+    const vector<pair<int,int>> &getModeList() const{
+        return input;
     }
 
-    double getMinPower() const{
-        return systemState.getMinPower();
-    }
-
-    double getMaxDelaySpread() const{
-        return systemState.getMaxDelaySpread();
-    }
-
-    [[nodiscard]]  const vector<pair<int,int>> &getModeList() const {
-        return systemState.getModeList();
-    }
-
-    [[nodiscard]]  vector<pair<int,int>> &getModeList() {
-        return systemState.getModeList();
-    }
-
-    void addActiveMode(pair<int,int> pair) {
-        systemState.addActiveMode(pair);
+    const map<string,double> &getObjectives() const{
+        return objectives;
     }
 
 
@@ -85,8 +88,6 @@ public:
         return false;
     }
 
-    SystemState& getSystemState() {
-        return systemState;
-    }
+
 
 };

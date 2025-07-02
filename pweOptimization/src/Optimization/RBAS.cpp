@@ -14,11 +14,8 @@ void RBAS::run(){
         while (i < numAntsPerCycle){
             SystemState systemState = rayHandler.propagate();
             Solution ant = Solution(systemState);
-            if (ant.getMinPower() > 0) {
-                ants.push_back(ant);
-                i++;
-            }
-
+            ants.push_back(ant);
+            i++;
         }
 
         ParetoHandler::fastNonDominatedSorting(ants);
@@ -32,8 +29,6 @@ void RBAS::run(){
 
         updatePheromones(ants);
         currentNumCycles++;
-
-
 
     }
 
@@ -73,7 +68,7 @@ void RBAS::updatePheromones(vector<Solution> &ants) {
     double alpha = 1;
     for (auto &ant : ants){
         if (ant.getCrowdingDistance() == std::numeric_limits<double>::infinity()) ant.setCrowdingDistance(1);
-        double pheromoneAmount = ant.getCrowdingDistance() * intensityFactor * exp(-alpha * ant.getFrontRank());
+        double pheromoneAmount = intensityFactor * exp(-alpha * ant.getFrontRank());
         modeHandler->modifyModeLikelihood(ant.getModeList(),pheromoneAmount);
 
     }

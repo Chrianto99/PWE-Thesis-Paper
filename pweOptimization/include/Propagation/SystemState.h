@@ -62,16 +62,16 @@ public:
 
     void setMaxDelaySpread() {
         maxDelaySpread = *std::max_element(receiverDelaySpreads.begin(), receiverDelaySpreads.end());
-//        double sum = std::accumulate(receiverDelaySpreads.begin(), receiverDelaySpreads.end(), 0.0);
-//        maxDelaySpread = sum / receiverDelaySpreads.size();
+        double sum = std::accumulate(receiverDelaySpreads.begin(), receiverDelaySpreads.end(), 0.0);
+        maxDelaySpread = sum / receiverDelaySpreads.size();
 
     }
 
 
     void setMinPower() {
         minPower = *std::min_element(receiverPowers.begin(), receiverPowers.end());
-//        double sum = std::accumulate(receiverPowers.begin(), receiverPowers.end(), 0.0);
-//        minPower = sum / receiverPowers.size();
+        double sum = std::accumulate(receiverPowers.begin(), receiverPowers.end(), 0.0);
+        minPower = sum / receiverPowers.size();
     }
 
     void print() const {
