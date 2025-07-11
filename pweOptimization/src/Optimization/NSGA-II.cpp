@@ -23,7 +23,7 @@ void NSGAII::run() {
 
         ParetoHandler::fastNonDominatedSorting(population); //parallelize
         ParetoHandler::calculateCrowdingDistance(population); //parallelize
-        paretoArchive = ParetoHandler::updateParetoArchive(paretoArchive, population, 200); //parallelize
+        //paretoArchive = ParetoHandler::updateParetoArchive(paretoArchive, population, 200); //parallelize
 
 //        if (ParetoHandler::checkRepetitionMarks(genCount * populationSize)){
 //            output[genCount * populationSize] = paretoArchive;

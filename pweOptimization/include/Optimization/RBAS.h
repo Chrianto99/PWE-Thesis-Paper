@@ -7,6 +7,7 @@
 
 #endif //PWEOPTIMIZATION_RBAS_H
 
+#include "set"
 #include "Graph/Graph.h"
 #include "Propagation/RayHandler.h"
 #include "ParetoHandler.h"
@@ -23,8 +24,8 @@ private:
     double evaporationRate;
     double intensityFactor;
     std::mt19937 randGen;
-    vector<Solution> paretoArchive;
-    map<int,vector<Solution>> output;
+    set<Solution> paretoArchive;
+    map<int,set<Solution>> output;
 
 
 public:
@@ -44,7 +45,7 @@ public:
 
     void updatePheromones(vector<Solution> &ants);
 
-    map<int,vector<Solution>> &getOutput(){
+    map<int,set<Solution>> &getOutput(){
         return output;
     }
 

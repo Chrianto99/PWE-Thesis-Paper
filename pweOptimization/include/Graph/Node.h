@@ -53,7 +53,7 @@ public:
 
 
 
-    void addToRays(Ray& ray) noexcept { rays.emplace_back(ray);}
+    void addToRays(Ray &ray) noexcept { rays.emplace_back(ray);}
     void clearRays(){ rays.clear();}
 
     const vector<double>& getDistFromRoutingTable(string &key){

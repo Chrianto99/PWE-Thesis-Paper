@@ -24,19 +24,14 @@ public:
 
     Solution() = default;
 
-    Solution(SystemState &systemState){
+    Solution(const SystemState &systemState){
         this->input = systemState.getModeList();
         objectives["averageDelaySpread"] = systemState.getMaxDelaySpread();
         objectives["averagePower"] = -systemState.getMinPower();
         for (auto &pair : input) {
             print.push_back(to_string(pair.first) + "." + to_string(pair.second));
         }
-        std::ostringstream oss;
-        oss.precision(15); // set to a high enough value (15 is safe for double)
-        for (auto &obj : objectives){
-            oss << std::fixed << obj.second;
-            print.push_back(oss.str());
-        }
+
 
     }
 
@@ -70,22 +65,26 @@ public:
     }
 
 
+//    bool operator<(const Solution& other) const {
+//        // First order by frontRank (ascending)
+//        if (frontRank != other.frontRank)
+//            return frontRank < other.frontRank;
+//
+//        // Then order by crowdingDistance (descending)
+//        if (crowdingDistance != other.crowdingDistance)
+//            return crowdingDistance > other.crowdingDistance; // note '>' because higher distance is better
+//
+//        // Then order by crowdingDistanceRank (ascending)
+//        if (crowdingDistanceRank != other.crowdingDistanceRank)
+//            return crowdingDistanceRank < other.crowdingDistanceRank;
+//
+//        // As last resort, you could compare systemState if you have a way to compare it
+//        // For now, fallback to false (equal)
+//        return false;
+//    }
+
     bool operator<(const Solution& other) const {
-        // First order by frontRank (ascending)
-        if (frontRank != other.frontRank)
-            return frontRank < other.frontRank;
-
-        // Then order by crowdingDistance (descending)
-        if (crowdingDistance != other.crowdingDistance)
-            return crowdingDistance > other.crowdingDistance; // note '>' because higher distance is better
-
-        // Then order by crowdingDistanceRank (ascending)
-        if (crowdingDistanceRank != other.crowdingDistanceRank)
-            return crowdingDistanceRank < other.crowdingDistanceRank;
-
-        // As last resort, you could compare systemState if you have a way to compare it
-        // For now, fallback to false (equal)
-        return false;
+        return objectives < other.objectives; // lexicographical comparison of std::map
     }
 
 

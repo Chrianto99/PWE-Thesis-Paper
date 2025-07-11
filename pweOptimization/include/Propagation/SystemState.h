@@ -24,7 +24,19 @@ private:
     double maxDelaySpread, minPower;
 
 public:
+
     SystemState() = default;
+    SystemState(const SystemState&) = default;
+    SystemState& operator=(const SystemState&) = default;
+
+    SystemState(SystemState&&) = default;
+    SystemState& operator=(SystemState&&) = default;
+
+    void addDataToSystemState(double delaySpread, double power, double rayCount){
+        receiverDelaySpreads.emplace_back(delaySpread);
+        receiverPowers.emplace_back(power);
+        receiverRayCounts.emplace_back(rayCount);
+    }
 
     void addActiveMode(pair<int,int> pair) {
         modeList.emplace_back(pair);
@@ -57,7 +69,6 @@ public:
     [[nodiscard]] vector<pair<int,int>> &getModeList() {
         return modeList;
     }
-
 
 
     void setMaxDelaySpread() {

@@ -8,8 +8,8 @@
 
 SystemState RayHandler::propagate() {
 
-    std::vector<Ray> currentRaysCopy = graph->getInputRays();
-    std::vector<Ray> currentRays = currentRaysCopy;
+    vector<Ray> currentRays = graph->getInputRays();
+
     while (!currentRays.empty()) {
 
         for (Ray &ray: currentRays) {
@@ -24,9 +24,10 @@ SystemState RayHandler::propagate() {
 
     estimateSignal();
     restoreSystem();
-    SystemState systemState = std::move(this->systemState);
 
-    return systemState;
+    SystemState output = std::move(systemState);
+    systemState = SystemState();
+    return output;
 
 }
 
@@ -60,17 +61,17 @@ void RayHandler::reflectRay(Ray &ray) {
         double totalLength = ray.getLength() + newEdge.getLength();
         double totalPower = ray.getPower() * pathLoss * gain;
 
-        if (totalPower < threshold) {
-            continue;
-        }
-
-        if (destNode.getType() == "Rx") {
-            destNode.addToRays(ray);
-            continue;
-        }
+        if (totalPower < threshold) continue;
 
         ray.addEdge(outputEdgeId);
-        newRays.emplace_back(totalPower, totalLength, destNode.getId(), ray.getEdges());
+        Ray newRay = Ray(totalPower, totalLength, destNode.getId(), ray.getEdges());
+
+        if (destNode.getType() == "Rx") destNode.addToRays(newRay);
+
+        else newRays.push_back(newRay);
+
+
+
 
     }
 }
@@ -81,8 +82,16 @@ void RayHandler::estimateSignal() {
 
     for (Node *nodePtr: receivers) {
 
-        Node receiver = *nodePtr;
-        //cout << " receiver rays:" << receiver.getRays().size() << endl;
+        Node &receiver = *nodePtr;
+        if (receiver.getRays().empty()){
+           systemState.addDataToSystemState(0,0,0);
+           continue;
+        }
+        if (receiver.getRays().size() == 1){
+            double power = receiver.getRays().front().getPower();
+            systemState.addDataToSystemState(0,power,1);
+            continue;
+        }
         int numRays = 0;
         double power = 0, delaySpread = 0;
         double mean_delay = 0, mean_delay_sq = 0;
@@ -102,17 +111,13 @@ void RayHandler::estimateSignal() {
         delaySpread = sqrt(mean_delay_sq - (mean_delay * mean_delay));
         double tolerance = 1e-14;  // Adjust the tolerance as necessary
         if (abs(delaySpread) < tolerance) delaySpread = 0;
-        if (isnan(delaySpread)) delaySpread = 1e-6;
-
-        systemState.addToDelaySpreads(delaySpread);
-        systemState.addToPowers(power);
-        systemState.addToRayCounts(numRays);
-        systemState.setMaxDelaySpread();
-        systemState.setMinPower();
 
 
+        systemState.addDataToSystemState(delaySpread, power, numRays);
 
     }
+    systemState.setMaxDelaySpread();
+    systemState.setMinPower();
 
 
 }

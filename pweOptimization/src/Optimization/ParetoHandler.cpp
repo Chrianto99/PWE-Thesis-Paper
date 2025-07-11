@@ -56,46 +56,51 @@ void ParetoHandler::fastNonDominatedSorting(std::vector<Solution>& solutions) {
 }
 
 
-vector<Solution> ParetoHandler::updateParetoArchive(vector<Solution>& paretoArchive,vector<Solution>& newSolutions, int maxCapacity) {
-
-    vector<Solution> combinedFront = paretoArchive;
+set<Solution> ParetoHandler::updateParetoArchive(set<Solution>& paretoArchive, vector<Solution>& newSolutions, int maxCapacity) {
+    vector<Solution> combinedFront(paretoArchive.begin(), paretoArchive.end());
     combinedFront.insert(combinedFront.end(), newSolutions.begin(), newSolutions.end());
 
-    vector<Solution> updatedArchive;
+    set<Solution> updatedArchive;
 
-    for (auto& candidate : combinedFront) {
+    for (const auto& candidate : combinedFront) {
         bool isDominated = false;
+        vector<Solution> toKeep;
 
-        for (auto it = updatedArchive.begin(); it != updatedArchive.end(); ) {
-            if (dominates(*it, candidate)) {
+        for (const auto& existing : updatedArchive) {
+            if (dominates(existing, candidate)) {
                 isDominated = true;
                 break;
             }
-            if (dominates(candidate, *it)) {
-                it = updatedArchive.erase(it);
-            }
-            else {
-                ++it;
+            if (!dominates(candidate, existing)) {
+                toKeep.push_back(existing);
             }
         }
 
         if (!isDominated) {
-            updatedArchive.push_back(candidate);
+            updatedArchive.clear();
+            for (const auto& sol : toKeep) {
+                updatedArchive.insert(sol);
+            }
+            updatedArchive.insert(candidate);
         }
     }
 
-    calculateCrowdingDistance(updatedArchive);
-    sort(updatedArchive.begin(), updatedArchive.end(), [](const Solution& a, const Solution& b) {
+    // Convert set to vector for crowding distance calculation and sorting
+    vector<Solution> archiveVec(updatedArchive.begin(), updatedArchive.end());
+
+    calculateCrowdingDistance(archiveVec);
+
+    sort(archiveVec.begin(), archiveVec.end(), [](const Solution& a, const Solution& b) {
         return a.getCrowdingDistance() > b.getCrowdingDistance();
     });
 
-    if (updatedArchive.size() > maxCapacity)
-        updatedArchive.resize(maxCapacity);
+    // Limit to max capacity
+    if (archiveVec.size() > maxCapacity) {
+        archiveVec.resize(maxCapacity);
+    }
 
-
-    return updatedArchive;
+    return set<Solution>(archiveVec.begin(), archiveVec.end());
 }
-
 
 void ParetoHandler::calculateCrowdingDistance(vector<Solution>& solutions) {
     int n = solutions.size();
@@ -185,19 +190,19 @@ bool ParetoHandler::checkRepetitionMarks(int currentRepMark){
     return false;
 }
 
-map<int,vector<Solution>> ParetoHandler::mergeOutputs(map<int,vector<Solution>> &currentOutput, map<int,vector<Solution>> &newOutput){
-
+map<int, set<Solution>> ParetoHandler::mergeOutputs(map<int, set<Solution>>& currentOutput, map<int, set<Solution>>& newOutput) {
     if (currentOutput.empty()) return newOutput;
 
-    map<int,vector<Solution>> updatedOutput;
-    for (auto kvP : currentOutput){
+    map<int, set<Solution>> updatedOutput;
+
+    for (auto& kvP : currentOutput) {
         int repMark = kvP.first;
-        vector<Solution> &currentArchive = kvP.second;
-        vector<Solution> &newArchive = newOutput[repMark];
-        vector<Solution> updatedArchive = updateParetoArchive(currentArchive, newArchive, 200);
+        set<Solution>& currentArchive = kvP.second;
+        vector<Solution> newArchive(newOutput[repMark].begin(), newOutput[repMark].end());
 
-        updatedOutput[repMark] = updatedArchive;
+        set<Solution> updatedArchive = updateParetoArchive(currentArchive, newArchive, 200);
 
+        updatedOutput[repMark] = std::move(updatedArchive);
     }
 
     return updatedOutput;

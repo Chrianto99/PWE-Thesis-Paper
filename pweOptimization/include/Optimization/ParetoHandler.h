@@ -12,6 +12,7 @@
 #include "Solution.h"
 #include "unordered_map"
 #include "map"
+#include "set"
 using namespace std;
 
 class ParetoHandler {
@@ -21,8 +22,7 @@ public:
 
     static void fastNonDominatedSorting(vector<Solution> &solutions);
 
-    static vector<Solution>
-    updateParetoArchive(vector<Solution> &paretoArchive, vector<Solution> &newSolutions, int maxCapacity);
+    static set<Solution> updateParetoArchive(set<Solution> &paretoArchive, vector<Solution> &newSolutions, int maxCapacity);
 
     static void calculateCrowdingDistance(vector<Solution> &solutions);
 
@@ -32,7 +32,6 @@ public:
 
     static bool checkRepetitionMarks(int currentRepMark);
 
-    static map<int, vector<Solution>>
-    mergeOutputs(map<int, vector<Solution>> &oldArchive, map<int, vector<Solution>> &newArchive);
+    static map<int, set<Solution>> mergeOutputs(map<int, set<Solution>> &oldArchive, map<int, set<Solution>> &newArchive);
 
 };
