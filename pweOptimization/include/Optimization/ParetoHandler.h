@@ -20,9 +20,11 @@ class ParetoHandler {
 
 public:
 
-    static void fastNonDominatedSorting(vector<Solution> &solutions);
+    static set<Solution> fastNonDominatedSorting(vector<Solution> &solutions);
 
-    static set<Solution> updateParetoArchive(set<Solution> &paretoArchive, vector<Solution> &newSolutions, int maxCapacity);
+    static set<Solution> getFirstFront(vector<Solution>& solutions);
+
+    static set<Solution> updateParetoArchive(set<Solution> &paretoArchive, set<Solution> &newSolutions);
 
     static void calculateCrowdingDistance(vector<Solution> &solutions);
 
@@ -30,7 +32,7 @@ public:
 
     static bool equals(const Solution &a, const Solution &b);
 
-    static bool checkRepetitionMarks(int currentRepMark);
+    static bool checkRepetitionMarks(int currentRepMark, int groupSize);
 
     static map<int, set<Solution>> mergeOutputs(map<int, set<Solution>> &oldArchive, map<int, set<Solution>> &newArchive);
 

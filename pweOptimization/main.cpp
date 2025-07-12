@@ -18,38 +18,21 @@ int main() {
     g->loadGraph("Graphs_15x10x5/Rx_4/Tiles_16/Graph_0.json", *g);
 
 
-//    auto start = std::chrono::high_resolution_clock::now();
-//
-//    NSGAII nsga = NSGAII(*g,50,100,0.5,0);
-//    nsga.run();
-//
-//    auto end = std::chrono::high_resolution_clock::now();
-//    auto duration = duration_cast<std::chrono::milliseconds >(end - start);
-//    auto durationPerPropagation = duration.count() ;
-//
-//    cout << "Time taken: " << durationPerPropagation << " ms" << endl;
-//
-//    start = std::chrono::high_resolution_clock::now();
-//
-//    RBAS rbas = RBAS(*g,50,100,0.8,5);
-//    rbas.run();
-//
-//    end = std::chrono::high_resolution_clock::now();
-//    duration = duration_cast<std::chrono::milliseconds>(end - start);
-//    durationPerPropagation = duration.count() ;
-
-
-
-//    cout << "Time taken: " << durationPerPropagation << " μs" << endl;
+    auto start = std::chrono::high_resolution_clock::now();
 
     map<int,set<Solution>> currentOutput;
     for (int i = 0; i < 100; ++i) {
         cout << i << endl;
-        RBAS alg = RBAS(*g,50,100,0.8,2);
+        //RBAS alg = RBAS(*g,24,200,0.8,2);
+        NSGAII alg = NSGAII(*g,24,200,0.5,0.02);
         alg.run();
         map<int,set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
         currentOutput = output;
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = duration_cast<std::chrono::milliseconds >(end - start);
+    auto durationPerPropagation = duration.count() / 100;
+    cout << "Time taken: " << durationPerPropagation << " ms" << endl;
 
 
 

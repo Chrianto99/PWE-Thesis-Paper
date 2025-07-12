@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 project(pweOptimization)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
 include_directories(include)
 

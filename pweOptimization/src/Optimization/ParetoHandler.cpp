@@ -2,10 +2,10 @@
 // Created by Christos on 6/16/2025.
 //
 #include "Optimization/ParetoHandler.h"
-void ParetoHandler::fastNonDominatedSorting(std::vector<Solution>& solutions) {
-    std::vector<std::vector<Solution *>> fronts;
-    std::map<Solution *, int> dominationCount;
-    std::map<Solution *, std::vector<Solution *>> dominatedSolutions;
+set<Solution> ParetoHandler::fastNonDominatedSorting(vector<Solution>& solutions) {
+    vector<vector<Solution *>> fronts;
+    unordered_map<Solution *, int> dominationCount;
+    unordered_map<Solution *, std::vector<Solution *>> dominatedSolutions;
 
     // Step 1: Initialize domination info
     for (auto &p: solutions) {
@@ -35,7 +35,7 @@ void ParetoHandler::fastNonDominatedSorting(std::vector<Solution>& solutions) {
     // Step 2: Build subsequent fronts
     int i = 0;
     while (i < fronts.size() && !fronts[i].empty()) {
-        std::vector<Solution *> nextFront;
+        vector<Solution *> nextFront;
 
         for (auto *p: fronts[i]) {
             for (auto *q: dominatedSolutions[p]) {
@@ -53,53 +53,52 @@ void ParetoHandler::fastNonDominatedSorting(std::vector<Solution>& solutions) {
 
         ++i;
     }
+
+    set<Solution> firstFront;
+    for (auto* ptr : fronts[0]) {
+        firstFront.insert(*ptr);
+    }
+
+    return firstFront;
 }
 
+set<Solution> ParetoHandler::getFirstFront(vector<Solution>& solutions) {
+    set<Solution> firstFront;
+    unordered_map<Solution *, int> dominationCount;
+    unordered_map<Solution *, std::vector<Solution *>> dominatedSolutions;
 
-set<Solution> ParetoHandler::updateParetoArchive(set<Solution>& paretoArchive, vector<Solution>& newSolutions, int maxCapacity) {
+    // Step 1: Initialize domination info
+    for (auto &p: solutions) {
+        dominationCount[&p] = 0;
+        dominatedSolutions[&p] = {};
+
+        for (auto &q: solutions) {
+            if (&p == &q) continue;
+
+            if (dominates(p, q)) {
+                dominatedSolutions[&p].push_back(&q);
+            } else if (dominates(q, p)) {
+                dominationCount[&p]++;
+            }
+        }
+
+        // If p is not dominated by anyone, it's in front 0
+        if (dominationCount[&p] == 0) {
+            firstFront.insert(p);
+        }
+    }
+
+    return firstFront;
+}
+
+set<Solution> ParetoHandler::updateParetoArchive(set<Solution>& paretoArchive, set<Solution>& newSolutions) {
+
+    if (paretoArchive.empty()) return newSolutions;
+
     vector<Solution> combinedFront(paretoArchive.begin(), paretoArchive.end());
     combinedFront.insert(combinedFront.end(), newSolutions.begin(), newSolutions.end());
 
-    set<Solution> updatedArchive;
-
-    for (const auto& candidate : combinedFront) {
-        bool isDominated = false;
-        vector<Solution> toKeep;
-
-        for (const auto& existing : updatedArchive) {
-            if (dominates(existing, candidate)) {
-                isDominated = true;
-                break;
-            }
-            if (!dominates(candidate, existing)) {
-                toKeep.push_back(existing);
-            }
-        }
-
-        if (!isDominated) {
-            updatedArchive.clear();
-            for (const auto& sol : toKeep) {
-                updatedArchive.insert(sol);
-            }
-            updatedArchive.insert(candidate);
-        }
-    }
-
-    // Convert set to vector for crowding distance calculation and sorting
-    vector<Solution> archiveVec(updatedArchive.begin(), updatedArchive.end());
-
-    calculateCrowdingDistance(archiveVec);
-
-    sort(archiveVec.begin(), archiveVec.end(), [](const Solution& a, const Solution& b) {
-        return a.getCrowdingDistance() > b.getCrowdingDistance();
-    });
-
-    // Limit to max capacity
-    if (archiveVec.size() > maxCapacity) {
-        archiveVec.resize(maxCapacity);
-    }
-
-    return set<Solution>(archiveVec.begin(), archiveVec.end());
+    return getFirstFront(combinedFront);
 }
 
 void ParetoHandler::calculateCrowdingDistance(vector<Solution>& solutions) {
@@ -179,9 +178,9 @@ bool ParetoHandler::dominates(const Solution& p, const Solution& q) {
     return betterInAny && !worseInAny;
 }
 
-bool ParetoHandler::checkRepetitionMarks(int currentRepMark){
+bool ParetoHandler::checkRepetitionMarks(int currentRepMark, int groupSize){
 
-    vector<int> validMarks = {250, 500, 1000, 2000, 3000, 5000};
+    vector<int> validMarks = {1 * 10 * groupSize, 2 * 10 * groupSize, 3 * 10 * groupSize, 5 * 10 * groupSize, 10 * 10 * groupSize};
 
     if (find(validMarks.begin(), validMarks.end(), currentRepMark) != validMarks.end()) {
         return true;
@@ -198,9 +197,9 @@ map<int, set<Solution>> ParetoHandler::mergeOutputs(map<int, set<Solution>>& cur
     for (auto& kvP : currentOutput) {
         int repMark = kvP.first;
         set<Solution>& currentArchive = kvP.second;
-        vector<Solution> newArchive(newOutput[repMark].begin(), newOutput[repMark].end());
+        set<Solution> newArchive = newOutput[repMark];
 
-        set<Solution> updatedArchive = updateParetoArchive(currentArchive, newArchive, 200);
+        set<Solution> updatedArchive = updateParetoArchive(currentArchive, newArchive);
 
         updatedOutput[repMark] = std::move(updatedArchive);
     }

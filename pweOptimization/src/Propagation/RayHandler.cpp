@@ -110,8 +110,8 @@ void RayHandler::estimateSignal() {
         mean_delay_sq = d / power;
         delaySpread = sqrt(mean_delay_sq - (mean_delay * mean_delay));
         double tolerance = 1e-14;  // Adjust the tolerance as necessary
-        if (abs(delaySpread) < tolerance) delaySpread = 0;
 
+        if (abs(delaySpread) < tolerance) delaySpread = 0;
 
         systemState.addDataToSystemState(delaySpread, power, numRays);
 
@@ -159,9 +159,10 @@ SystemState RayHandler::propagateRandom() {
 
     estimateSignal();
     restoreSystem();
-    SystemState systemState = std::move(this->systemState);
 
-    return systemState;
+    SystemState output = std::move(systemState);
+    systemState = SystemState();
+    return output;
 
 }
 
@@ -191,9 +192,10 @@ SystemState RayHandler::propagateGivenModes(const vector<pair<int,int>> &modeLis
 
     estimateSignal();
     restoreSystem();
-    SystemState systemState = std::move(this->systemState);
 
-    return systemState;
+    SystemState output = std::move(systemState);
+    systemState = SystemState();
+    return output;
 
 }
 

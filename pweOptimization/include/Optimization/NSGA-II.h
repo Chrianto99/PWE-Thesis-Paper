@@ -7,7 +7,9 @@
 
 #endif //PWEOPTIMIZATION_NSGA_II_H
 #include "vector"
+#include "set"
 #include "list"
+#include "unordered_set"
 #include "Graph/Graph.h"
 #include "Propagation/RayHandler.h"
 #include "Solution.h"
@@ -24,8 +26,8 @@ private:
     double crossoverChance;
     double mutationChance;
     std::mt19937 randGen;
-    vector<Solution> paretoArchive;
-    map<int,vector<Solution>> output;
+    set<Solution> paretoArchive;
+    map<int,set<Solution>> output;
 
 
 public:
@@ -93,7 +95,7 @@ public:
 
     void setParetoArchive(const vector<Solution> &paretoArchive);
 
-    map<int,vector<Solution>> &getOutput(){
+    map<int,set<Solution>> &getOutput(){
         return output;
     }
 
