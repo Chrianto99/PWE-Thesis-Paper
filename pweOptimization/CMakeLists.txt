@@ -49,6 +49,10 @@ add_executable(pweOptimization
         include/Optimization/RBAS.h
         src/Optimization/RBAS.cpp
         include/Optimization/HyperVolumeCalculator.h
+        include/DataCollection/AlgorithmOutput.h
+        include/DataCollection/DataHandler.h
+        src/DataCollection/DataHandler.cpp
+        include/DataCollection/Point.h
 )
 
 include(FetchContent)

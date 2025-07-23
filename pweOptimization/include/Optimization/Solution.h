@@ -9,7 +9,12 @@
 #include "Propagation/SystemState.h"
 #include "map"
 #include "vector"
+#include <nlohmann/json.hpp>
+
 #pragma once
+
+using json = nlohmann::json;
+
 
 class Solution{
 private:
@@ -64,6 +69,11 @@ public:
         return objectives;
     }
 
+    map<string,double> &getObjectives() {
+        return objectives;
+    }
+
+
 
 //    bool operator<(const Solution& other) const {
 //        // First order by frontRank (ascending)
@@ -87,6 +97,32 @@ public:
         return objectives < other.objectives; // lexicographical comparison of std::map
     }
 
+    json toJson() const {
+        json j;
+
+        // Serialize input as array of arrays
+        json inputJson = json::array();
+        for (const auto &p : input) {
+            inputJson.push_back({p.first, p.second});
+        }
+
+        // Serialize print as array of strings
+        json printJson = print;
+
+        // Serialize objectives (map)
+        json objectivesJson;
+        for (const auto &[name, value] : objectives) {
+            objectivesJson[name] = value;
+        }
+
+        // Build final JSON
+        j["input"] = inputJson;
+        j["objectives"] = objectivesJson;
 
 
+        return j;
+    }
 };
+
+
+
