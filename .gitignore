@@ -1,3 +1,4 @@
-/data/
+
 /pweOptimization/cmake-build-debug/
-/pweOptimization/data/
+/pweOptimization/cmake-build-release/
+/pweOptimization/cmake-build-release-event-trace/

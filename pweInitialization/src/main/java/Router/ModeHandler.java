@@ -11,7 +11,7 @@ public class ModeHandler {
 
     Graph g;
     DistributionManager distributionManager;
-    static double DIFFUSION_CHANCE = 0.5;
+    static double DIFFUSION_CHANCE = 0;
 
 
     public ModeHandler(Graph g) {

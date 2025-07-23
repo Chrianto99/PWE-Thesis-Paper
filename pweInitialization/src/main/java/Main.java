@@ -20,7 +20,7 @@ public class Main {
         // Create Room
         double[] roomDims = new double[]{15, 10, 5}; // Room dimensions x,y,z
         int numSpheres = 5;
-        double pathLossExponent = 3;
+        double pathLossExponent = 2;
         RoomHandler roomHandler = new RoomHandler(); // Handles room creation (walls and obstacles)
         roomHandler.createCuboidRoom(roomDims);
         roomHandler.addSpheres(numSpheres);
@@ -41,7 +41,7 @@ public class Main {
         int[] numReceiversVector = {4};
 
 
-        int numberOfGraphs = 1;
+        int numberOfGraphs = 100;
         String folderPath1 = "Graphs_" + (int) roomDims[0] + "x" + (int) roomDims[1] + "x" + (int) roomDims[2];
         File directory = new File(folderPath1);
         directory.mkdir();
