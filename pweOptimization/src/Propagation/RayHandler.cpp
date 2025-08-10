@@ -80,11 +80,13 @@ void RayHandler::estimateSignal() {
 
     auto &receivers = graph->getReceivers();
 
+    double numUnvisitedReceivers = 0;
     for (Node *nodePtr: receivers) {
 
         Node &receiver = *nodePtr;
         if (receiver.getRays().empty()){
            systemState.addDataToSystemState(0,0,0);
+           numUnvisitedReceivers++;
            continue;
         }
         if (receiver.getRays().size() == 1){
@@ -101,24 +103,30 @@ void RayHandler::estimateSignal() {
             power += ray.getPower();
             time = ray.getLength() / C;
 
-
             a += ray.getPower() * time;
             d += ray.getPower() * time * time;
             numRays++;
         }
         mean_delay = a / power;
         mean_delay_sq = d / power;
+
         delaySpread = sqrt(mean_delay_sq - (mean_delay * mean_delay));
         double tolerance = 1e-14;  // Adjust the tolerance as necessary
 
         if (abs(delaySpread) < tolerance) delaySpread = 0;
+        if (isnan(delaySpread)) delaySpread = 0;
+
+
+
 
         systemState.addDataToSystemState(delaySpread, power, numRays);
 
     }
-    systemState.setMaxDelaySpread();
-    systemState.setMinPower();
-
+    //cout << numUnvisitedReceivers << endl;
+    systemState.setAverageDelaySpread();
+    systemState.setAveragePower();
+    systemState.setServiceRate((receivers.size() - numUnvisitedReceivers) / receivers.size());
+//    if (isnan(systemState.getAverageDelaySpread())) cout << systemState.getAverageDelaySpread();
 
 }
 

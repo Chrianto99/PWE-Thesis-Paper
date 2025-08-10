@@ -16,7 +16,6 @@ public class Main {
         double c = 299792458;
         double wavelength = c / frequency;
 
-
         // Create Room
         double[] roomDims = new double[]{15, 10, 5}; // Room dimensions x,y,z
         int numSpheres = 5;
@@ -28,18 +27,14 @@ public class Main {
         Room cuboidRoom = roomHandler.getRoom(); // Final room object. Input for graphs creation
         cuboidRoom.setAlpha(pathLossExponent);
 
-
         // Set transmitter parameters
         TxConfig txConfig = new TxConfig(1600, 1, 0, wavelength);
-
 
         //Set SDM Parameters
         TileConfig tileConfig = new TileConfig(40, wavelength / 10, 4, wavelength);
 
-
-        int[] numberOfTilesVector = {16};
-        int[] numReceiversVector = {4};
-
+        int[] numberOfTilesVector = {16,32,64};
+        int[] numReceiversVector = {2,4};
 
         int numberOfGraphs = 100;
         String folderPath1 = "Graphs_" + (int) roomDims[0] + "x" + (int) roomDims[1] + "x" + (int) roomDims[2];

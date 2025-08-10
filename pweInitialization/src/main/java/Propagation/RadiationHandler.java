@@ -13,14 +13,12 @@ public class RadiationHandler {
         this.g = g;
     }
 
-    public boolean createInputRays() { // Handles Transmitter Radiation. Creates Input Rays by picking edges that
-        boolean transmitterBlocked = true;
+    public void createInputRays() { // Handles Transmitter Radiation. Creates Input Rays by picking edges that
 
         Node transmitter = g.getTx();
         List<Edge> outputEdges = new ArrayList<>(transmitter.getOutputEdges());
 
         int numLobesCreated = 0;
-        System.out.println(outputEdges.size());
         while (numLobesCreated < g.txConfig.getNumLobes() && !outputEdges.isEmpty()) {
 
             Edge edgePicked = outputEdges.get(g.rand.nextInt(outputEdges.size()));
@@ -35,16 +33,6 @@ public class RadiationHandler {
 
         }
 
-
-        // Removing edges that will not be used in the simulation significantly reduces exported data size
-        //removeUnusedEdges(outputEdges);
-
-        // If the desired number of lobes cannot be created due to Tx blockage abort process and
-        // proceed to create another graph
-
-        if (numLobesCreated < g.txConfig.getNumLobes()) return transmitterBlocked;
-
-        return !transmitterBlocked;
 
     }
 

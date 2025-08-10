@@ -19,7 +19,8 @@ void RBAS::run() {
         int i = 0;
         while (i < numAntsPerCycle) {
             SystemState systemState = rayHandler.propagate();
-            if (systemState.getMinPower() == 0) continue;
+            if (systemState.getServiceRate() < 0.25) continue;
+
             ants.emplace_back(systemState);
             i++;
         }
@@ -48,7 +49,7 @@ void RBAS::run() {
 
 void RBAS::runBruteForce(){
     int currentNumCycles = 0;
-
+    set<Solution> firstFront;
     while (currentNumCycles < numCycles){
 
         vector<Solution> ants;
@@ -56,12 +57,13 @@ void RBAS::runBruteForce(){
         int i = 0;
         while (i < numAntsPerCycle) {
             SystemState systemState = rayHandler.propagate();
-            if (systemState.getMinPower() == 0) continue;
+            if (systemState.getServiceRate() < 0.25) continue;
+
             ants.emplace_back(systemState);
             i++;
         }
 
-        set<Solution> firstFront = ParetoHandler::fastNonDominatedSorting(ants);
+        firstFront = ParetoHandler::fastNonDominatedSorting(ants);
 
         ParetoHandler::calculateCrowdingDistance(ants);
 
@@ -81,17 +83,19 @@ void RBAS::runBruteForce(){
 
 void RBAS::updatePheromones(vector<Solution> &ants) {
 
-    double alpha = 1;
+    for (int i = 0; i < graph->getNumTiles(); ++i){
+        for (int j = 0; j < graph->getNumModes(i); ++j){
+            modeHandler->multiplyLikelihood(i, j, evaporationRate);
+        }
+    }
+    double alpha = 0.5;
     for (auto &ant : ants){
         if (ant.getCrowdingDistance() == std::numeric_limits<double>::infinity()) ant.setCrowdingDistance(1);
-        double pheromoneAmount = ant.getCrowdingDistance() * intensityFactor * exp(-alpha * ant.getFrontRank());
+        double pheromoneAmount = intensityFactor * (exp(-alpha * ant.getFrontRank()) + ant.getCrowdingDistance());
         modeHandler->modifyModeLikelihood(ant.getModeList(),pheromoneAmount);
-
     }
 
     modeHandler->aliasMethod();
-
-
 
 
 

@@ -38,28 +38,26 @@ public class Graph {
 
         // Step 2: Create all the legal Edges and save them in allEdges list
         EdgeHandler edgeHandler = new EdgeHandler(this);
-        edgeHandler.initializeEdges();
+        boolean elementBlocked = edgeHandler.initializeEdges();
+
+        if (elementBlocked){
+            graphCreationAborted = true;
+            System.out.println("Element Blocked. Graph Creation Aborted");
+            return;
+        }
+
 
         // Step 3: Create input rays from the transmitter and save the in inputRays list.
         // Also removes edges that will not be used in the simulation
         RadiationHandler radiationHandler = new RadiationHandler(this);
-        boolean transmitterBlocked = radiationHandler.createInputRays();
-        if (transmitterBlocked) {
-            graphCreationAborted = true;
-            System.out.println("Transmitter Blocked. Graph Creation Aborted");
-            return;
-        }
+        radiationHandler.createInputRays();
+
 
         // Step 4: Simulate EM functions and save them in routingTable list
         // Access output distribution given node,mode and input Edge with
         // key = node.rTableIndex + edge.rTableKey * node.numModes + modeId
         ModeHandler modeHandler = new ModeHandler(this);
-        boolean tileBlocked = modeHandler.initializeRoutingTables();
-        if (tileBlocked) {
-            graphCreationAborted = true;
-            System.out.println("Tile Blocked. Graph Creation Aborted");
-
-        }
+        modeHandler.initializeRoutingTables();
 
 
     }
@@ -99,6 +97,10 @@ public class Graph {
             if (node.getType().equals("Tx")) return node;
         }
         return null;
+    }
+
+    public List<Node> getAllNodes(){
+        return allNodes;
     }
 
 

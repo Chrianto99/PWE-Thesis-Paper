@@ -16,23 +16,29 @@ using json = nlohmann::json;
 int main() {
 
     Graph* g = new Graph();
-    int numTiles = 16;
+    int numTiles = 32;
     int numUsers = 4;
     int numModes  = 0;
     int numGraphs = 100;
 
-    int numGenerations = numTiles * 1.5;
-    int numCycles = 50;
+    int groupSize =  numTiles * 1.5;
+    int numGenerations = 50;
     int numRepetitions = 100;
+    int roomDims[3] = {10, 6, 4};
+    string roomPath = "Graphs_" + to_string(roomDims[0]) + "x" + to_string(roomDims[1])
+                     + "x" + to_string(roomDims[2]);
+
+    string algorithm = "NSGAII";
 
 
     for (int graphID = 0; graphID < numGraphs; graphID++) {
 
-        string path = "Graphs_15x10x5/Rx_" + to_string(numUsers) +
+        cout << "graph:" << graphID << endl;
+        string graphPath = roomPath + "/Rx_" + to_string(numUsers) +
                       "/Tiles_" + to_string(numTiles) +
                       "/Graph_" + to_string(graphID) + ".json";
 
-        g->loadGraph(path, *g);
+        g->loadGraph(graphPath, *g);
 
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -45,10 +51,27 @@ int main() {
 
         for (int i = 0; i < numRepetitions; ++i) {
             //cout << i << endl;
-            NSGAII alg = NSGAII(*g, 24, 100, 0.5, 0.02);
-            alg.run();
-            map<int, set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
-            currentOutput = output;
+            if (algorithm == "NSGAII") {
+                NSGAII alg = NSGAII(*g, groupSize, numGenerations, 0.3, 0.03);
+                alg.run();
+                map<int, set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
+                currentOutput = output;
+            }
+            else if (algorithm == "RBAS"){
+                RBAS alg = RBAS(*g, groupSize, numGenerations, 0.8, 2);
+                alg.run();
+                map<int, set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
+                currentOutput = output;
+            }
+            else if (algorithm == "BruteForce"){
+                RBAS alg = RBAS(*g, groupSize, numGenerations, 0.8, 2);
+                alg.runBruteForce();
+                map<int, set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
+                currentOutput = output;
+
+            }
+
+
         }
         end = std::chrono::high_resolution_clock::now();
         duration = duration_cast<std::chrono::milliseconds>(end - start);
@@ -66,8 +89,8 @@ int main() {
 
         AlgorithmOutput data = dataHandler.returnData(convertedOutput,
                                                       vector<string>{"averageDelaySpread", "averagePower"});
-
-        data.writeToJson("NSGAII", graphID, numTiles, numUsers);
+        string writePath = roomPath + "/results/" + algorithm;
+        data.writeToJson(writePath, graphID, numTiles, numUsers);
     }
 
 

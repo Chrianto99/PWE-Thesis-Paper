@@ -24,6 +24,7 @@ private:
     map<string,double> objectives;
     int frontRank, crowdingDistanceRank;
     double crowdingDistance;
+    double servicePercent; //Defines the percentage of users that are satisfied
 
 public:
 
@@ -31,8 +32,8 @@ public:
 
     Solution(const SystemState &systemState){
         this->input = systemState.getModeList();
-        objectives["averageDelaySpread"] = systemState.getMaxDelaySpread();
-        objectives["averagePower"] = -systemState.getMinPower();
+        objectives["averageDelaySpread"] = systemState.getAverageDelaySpread();
+        objectives["averagePower"] = -systemState.getAveragePower();
         for (auto &pair : input) {
             print.push_back(to_string(pair.first) + "." + to_string(pair.second));
         }

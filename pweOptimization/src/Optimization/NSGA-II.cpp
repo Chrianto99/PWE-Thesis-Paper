@@ -59,7 +59,7 @@ vector<Solution> NSGAII::createInitialPopulation() {
     while (solutionGenerated < populationSize) {
 
         SystemState systemState = rayHandler.propagate();
-        if (systemState.getMinPower() == 0) continue;
+        if (systemState.getServiceRate() < 0.25) continue;
         Solution newSol = Solution(systemState);
 
         totalSolsCreated++;
@@ -81,10 +81,11 @@ vector<Solution> NSGAII::generateOffspring(vector<Solution>& population) {
         Solution& parent1 = tournamentSelection(population);
         Solution& parent2 = tournamentSelection(population);
 
-//        uniform_real_distribution<double> realDist(0.0, 1.0);
-//        double randDouble = realDist(randGen);
 
-        Solution child = crossover(parent1, parent2);
+        Solution child;
+        while (child.getModeList().empty()) {
+            child = crossover(parent1, parent2);
+        }
 
         totalSolsCreated++;
         offspring.push_back(mutate(child));
@@ -142,6 +143,7 @@ Solution NSGAII::crossover(const Solution& parent1, const Solution& parent2) {
 
     // Generate offspring SystemState using the chosen mode list
     SystemState systemState = rayHandler.propagateGivenModes(offSpringModeList);
+    if (systemState.getServiceRate() < 0.25) return Solution();
     return Solution(systemState);
 }
 

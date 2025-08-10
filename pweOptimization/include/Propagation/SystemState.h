@@ -21,7 +21,9 @@ private:
     vector<double> receiverDelaySpreads;
     vector<double> receiverPowers;
     vector<double> receiverRayCounts;
+    double averageDelaySpread, averagePower;
     double maxDelaySpread, minPower;
+    double serviceRate;
 
 public:
 
@@ -62,6 +64,14 @@ public:
         return minPower;
     }
 
+    [[nodiscard]] double getAverageDelaySpread() const {
+        return averageDelaySpread;
+    }
+
+    [[nodiscard]] double getAveragePower() const {
+        return averagePower;
+    }
+
     [[nodiscard]] const vector<pair<int,int>> &getModeList() const {
         return modeList;
     }
@@ -71,18 +81,33 @@ public:
     }
 
 
-    void setMaxDelaySpread() {
-        maxDelaySpread = *std::max_element(receiverDelaySpreads.begin(), receiverDelaySpreads.end());
+
+    void setAverageDelaySpread() {
         double sum = std::accumulate(receiverDelaySpreads.begin(), receiverDelaySpreads.end(), 0.0);
-        maxDelaySpread = sum / receiverDelaySpreads.size();
+        averageDelaySpread = sum / receiverDelaySpreads.size();
 
     }
 
+    void setMaxDelaySpread(){
+        maxDelaySpread = *std::max_element(receiverDelaySpreads.begin(), receiverDelaySpreads.end());
+    }
 
-    void setMinPower() {
-        minPower = *std::min_element(receiverPowers.begin(), receiverPowers.end());
+
+    void setAveragePower() {
         double sum = std::accumulate(receiverPowers.begin(), receiverPowers.end(), 0.0);
-        minPower = sum / receiverPowers.size();
+        averagePower = sum / receiverPowers.size();
+    }
+
+    void setMinPower(){
+        minPower = *std::min_element(receiverPowers.begin(), receiverPowers.end());
+    }
+
+    void setServiceRate(double serviceRate){
+        this->serviceRate = serviceRate;
+    }
+
+    double getServiceRate(){
+        return this->serviceRate;
     }
 
     void print() const {

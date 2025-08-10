@@ -31,7 +31,8 @@ public class DistributionManager {
         int maxSize = (int) (mean + stdDev * g.rand.nextGaussian());
 
         List<Edge> outputEdges = new ArrayList<>(tile.getOutputEdges());
-        //outputEdges.removeIf(edge -> Math.abs(tile.getPhiAngle(edge) - tile.getPhiAngle(inputEdge)) < Math.PI);
+
+        outputEdges.removeIf(edge -> Math.abs(tile.getPhiAngle(edge) - tile.getPhiAngle(inputEdge)) < Math.PI / 2);
         Collections.shuffle(outputEdges);
 
         int distSize = Math.min(maxSize, outputEdges.size());
@@ -46,8 +47,6 @@ public class DistributionManager {
             double reflectedAngle = tile.getThetaAngle(outputEdge);
 
             double maxGain = Math.abs(Math.cos(reflectedAngle - incidentAngle));
-
-            if (maxGain == 0) System.out.println(reflectedAngle + " " + incidentAngle);
 
             // Generate a normally distributed value with μ = 0.5 and σ = 0.15
             double randValue = g.rand.nextDouble(0.8);
@@ -65,7 +64,7 @@ public class DistributionManager {
     public void diffuse(Tile tile, Edge inputEdge) {
 
         List<Edge> outputEdges = new ArrayList<>(tile.getOutputEdges());
-        //outputEdges.removeIf(edge -> Math.abs(tile.getPhiAngle(edge) - tile.getPhiAngle(inputEdge)) < Math.PI);
+        outputEdges.removeIf(edge -> Math.abs(tile.getPhiAngle(edge) - tile.getPhiAngle(inputEdge)) < Math.PI / 2);
 
         int distSize = tile.getOutputEdges().size();
 

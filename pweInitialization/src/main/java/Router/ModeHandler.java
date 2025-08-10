@@ -11,7 +11,7 @@ public class ModeHandler {
 
     Graph g;
     DistributionManager distributionManager;
-    static double DIFFUSION_CHANCE = 0;
+    static double DIFFUSION_CHANCE = 0.5;
 
 
     public ModeHandler(Graph g) {
@@ -21,17 +21,12 @@ public class ModeHandler {
 
     }
 
-    public boolean initializeRoutingTables() {
+    public void initializeRoutingTables() {
 
-        boolean abort = true;
         ArrayList<Tile> tiles = g.getTiles();
 
         for (Tile tile : tiles) {
 
-            if (tile.getInputEdges().isEmpty()) {
-
-                return abort;
-            }
             tile.setNumberOfModes(g.numberOfModes);
             generateThetaPhiArchive(tile);
 
@@ -47,7 +42,6 @@ public class ModeHandler {
 
 
         }
-        return !abort;
 
 
     }

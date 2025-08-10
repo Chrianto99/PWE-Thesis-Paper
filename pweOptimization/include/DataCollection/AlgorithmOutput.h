@@ -44,16 +44,22 @@ public:
     }
 
     void writeToJson(const std::string& folderName, int graphID, int numTiles, int numUsers) const {
-        // Create the directory if it doesn't exist
-        std::filesystem::create_directories(folderName);
+        namespace fs = std::filesystem;
+
+        // Create the main directory
+        fs::create_directories(folderName);
+
+        // Create the subdirectory path
+        std::string subDirName = std::to_string(numTiles) + "Tiles_" + std::to_string(numUsers) + "Users";
+        fs::path subDirPath = fs::path(folderName) / subDirName;
+        fs::create_directories(subDirPath);
 
         // Build the filename
-        std::string filename = folderName + "/results_" +
-                               std::to_string(graphID) + "_" +
-                               std::to_string(numTiles) + "_" +
-                               std::to_string(numUsers) + ".json";
+        std::string fileName = "Graph_" + std::to_string(graphID) + ".json";
 
-        // Prepare JSON object
+        // Full file path
+        fs::path filePath = subDirPath / fileName;
+
         json j;
         j["objectiveLabels"] = objectiveLabels;
 
@@ -72,9 +78,9 @@ public:
         j["hyperVolumes"] = hyperVolumes;
 
         // Write to file
-        std::ofstream outFile(filename);
+        std::ofstream outFile(filePath);
         if (!outFile) {
-            throw std::runtime_error("Failed to write to " + filename);
+            throw std::runtime_error("Failed to write to ");
         }
         outFile << j.dump(4); // Pretty-print with 4-space indent
     }

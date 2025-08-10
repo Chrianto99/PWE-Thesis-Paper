@@ -14,8 +14,9 @@ void ModeHandler::aliasMethod() {
     for (int i = 0; i < numTiles; ++i) {
         int numModes = graph->getNumModes(i);
 
-        vector<int> &counts = tileDistributions[i];  // Current tile's counts
-        int total = std::accumulate(counts.begin(), counts.end(), 0);  // Sum of counts
+        vector<double> &counts = tileDistributions[i];  // Current tile's counts
+        double total = std::accumulate(counts.begin(), counts.end(), 0.0);
+        // Sum of counts
 
         if (total == 0) continue;  // Avoid division by zero
 
@@ -24,7 +25,7 @@ void ModeHandler::aliasMethod() {
 
         // Normalize probabilities
         for (int j = 0; j < numModes; ++j) {
-            prob[j] = (counts[j] * numModes) / static_cast<double>(total);
+            prob[j] = (counts[j] * numModes) / total;
             if (prob[j] < 1.0) small.push_back(j);
             else large.push_back(j);
         }
@@ -98,7 +99,10 @@ void ModeHandler::modifyModeLikelihood(vector<pair<int,int>> &modeList, double a
         int modeId = pair.second;
         tileDistributions[tileId][modeId] += amount;
     }
+
 }
+
+
 
 
 

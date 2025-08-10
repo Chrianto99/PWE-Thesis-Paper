@@ -2,6 +2,7 @@
 // Created by Christos on 6/16/2025.
 //
 #include "Optimization/ParetoHandler.h"
+
 set<Solution> ParetoHandler::fastNonDominatedSorting(vector<Solution>& solutions) {
     vector<vector<Solution *>> fronts;
     unordered_map<Solution *, int> dominationCount;
@@ -103,6 +104,7 @@ set<Solution> ParetoHandler::updateParetoArchive(set<Solution>& paretoArchive, s
 
 void ParetoHandler::calculateCrowdingDistance(vector<Solution>& solutions) {
     int n = solutions.size();
+
     if (n == 0) return;
 
     for (auto& sol : solutions) {
@@ -180,7 +182,7 @@ bool ParetoHandler::dominates(const Solution& p, const Solution& q) {
 
 bool ParetoHandler::checkRepetitionMarks(int currentRepMark, int groupSize){
 
-    vector<int> validMarks = {1 * 10 * groupSize, 2 * 10 * groupSize, 3 * 10 * groupSize, 5 * 10 * groupSize, 10 * 10 * groupSize};
+    vector<int> validMarks = {1 * 10 * groupSize, 2 * 10 * groupSize, 3 * 10 * groupSize, 4 * 10 * groupSize, 5 * 10 * groupSize};
 
     if (find(validMarks.begin(), validMarks.end(), currentRepMark) != validMarks.end()) {
         return true;

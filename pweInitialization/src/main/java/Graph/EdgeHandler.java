@@ -5,6 +5,7 @@ import Node.*;
 import RoomGeometry.Obstacle;
 import RoomGeometry.Sphere;
 
+import javax.sound.midi.Receiver;
 import java.util.List;
 
 public class EdgeHandler {
@@ -17,7 +18,7 @@ public class EdgeHandler {
         this.g = g;
     }
 
-    public void initializeEdges() {
+    public boolean initializeEdges() {
 
         List<Tile> tiles = g.getTiles();
         // Creates edges between tiles that are not on same wall
@@ -26,6 +27,8 @@ public class EdgeHandler {
         createReceiverEdges(tiles);
         // Creates edges between tiles and transmitter
         createTransmitterEdges(tiles);
+        // Check if any of the elements is blocked
+        return checkIfAnyElementBlocked();
 
 
     }
@@ -97,6 +100,31 @@ public class EdgeHandler {
             Sphere sphere = (Sphere) obst;
             if (VectorOperator.segmentIntersectsSphere(point1, point2, sphere.getCenter(), sphere.getRadius()))
                 return true;
+        }
+
+        return false;
+
+    }
+
+
+    public boolean checkIfAnyElementBlocked(){
+
+
+        List<Node> allNodes = g.getAllNodes();
+
+        for (Node node : allNodes){
+
+            switch (node.getType()){
+                case "Tx":
+                    if (node.getOutputEdges().size() < g.room.getNumReceivers()) return true;
+                    break;
+                case "Tile":
+                    if (node.getInputEdges().isEmpty()) return true;
+                    break;
+                case "Rx":
+                    if (node.getInputEdges().isEmpty()) return true;
+                    break;
+            }
         }
 
         return false;

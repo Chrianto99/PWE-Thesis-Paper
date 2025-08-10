@@ -53,6 +53,9 @@ add_executable(pweOptimization
         include/DataCollection/DataHandler.h
         src/DataCollection/DataHandler.cpp
         include/DataCollection/Point.h
+
+        include/Optimization/LocalSearch.h
+        src/Optimization/LocalSearch.cpp
 )
 
 include(FetchContent)

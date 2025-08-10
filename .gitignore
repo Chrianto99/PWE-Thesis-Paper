@@ -2,3 +2,4 @@
 /pweOptimization/cmake-build-debug/
 /pweOptimization/cmake-build-release/
 /pweOptimization/cmake-build-release-event-trace/
+*.json

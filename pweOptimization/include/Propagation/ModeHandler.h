@@ -15,7 +15,7 @@ using namespace std;
 class ModeHandler {
 private:
     Graph* graph;
-    vector<vector<int>> tileDistributions;
+    vector<vector<double>> tileDistributions;
     vector<vector<double>> probabilities;
     vector<vector<int>> aliases;
     std::mt19937 randGen;
@@ -24,11 +24,11 @@ public:
 
     ModeHandler() = default;
 
-    ModeHandler(Graph &graph, int value)
+    ModeHandler(Graph &graph, double value)
             : graph(&graph), randGen(std::chrono::system_clock::now().time_since_epoch().count()){
 
         for (int i = 0; i < graph.getNumTiles() ; ++i) {
-            std::vector<int> tileDist;
+            std::vector<double> tileDist;
             for (int j = 0; j < graph.getNumModes(i) ; ++j) {
                 tileDist.push_back(value);
 
@@ -55,11 +55,14 @@ public:
 
     }
 
-    [[nodiscard]] const std::vector<std::vector<int>>& getTileDistributions() const { return tileDistributions; }
+    [[nodiscard]] const std::vector<std::vector<double>>& getTileDistributions() const { return tileDistributions; }
     [[nodiscard]] const std::vector<std::vector<double>>& getProbabilities() const { return probabilities; }
     [[nodiscard]] const std::vector<std::vector<int>>& getAliases() const { return aliases; }
     [[nodiscard]] std::mt19937& getRandGen() { return randGen; } // Non-const (modifiable)
 
+    void multiplyLikelihood(int nodeId, int modeId, double value){
+        tileDistributions[nodeId][modeId] *= value;
+    }
     void aliasMethod();
 
     int chooseMode(int tileId);
