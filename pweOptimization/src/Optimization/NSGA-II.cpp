@@ -12,9 +12,10 @@ void NSGAII::run() {
     auto t_end = high_resolution_clock::now();
 
     // Time initial population creation
-    vector<Solution> population = createInitialPopulation(); //parallelize
+    if (population.empty() || population.size() == 1) population = createInitialPopulation(); //parallelize
 
-    while (genCount < numGenerations + 1) {
+    int& genCount = algorithm->currentNumCycles;
+    while (genCount < algorithm->numGenerations + 1) {
 
         if (genCount == 0) {
 
@@ -30,6 +31,9 @@ void NSGAII::run() {
         // Insert offspring into population
         population.insert(population.end(), offspring.begin(), offspring.end());
 
+        algorithm->numLocalSearches = 1;
+        LocalSearch::applyLocalSearch(*algorithm, population);
+
         // Fast non-dominated sorting
         set<Solution> firstFront = ParetoHandler::fastNonDominatedSorting(population); //parallelize
 
@@ -37,11 +41,11 @@ void NSGAII::run() {
         ParetoHandler::calculateCrowdingDistance(population); //parallelize
 
         // Update Pareto Archive
-        paretoArchive = ParetoHandler::updateParetoArchive(paretoArchive, firstFront); //parallelize
+        ParetoHandler::updateParetoArchive(algorithm->paretoArchive, firstFront); //parallelize
 
         // Check repetition marks and store output
-        if (ParetoHandler::checkRepetitionMarks(genCount * populationSize, populationSize)) {
-            output[genCount * populationSize] = paretoArchive;
+        if (ParetoHandler::checkRepetitionMarks(genCount * algorithm->genSize, algorithm->genSize)) {
+            algorithm->output[genCount * algorithm->genSize] = algorithm->paretoArchive;
         }
 
         // Select next generation
@@ -53,12 +57,11 @@ void NSGAII::run() {
 
 vector<Solution> NSGAII::createInitialPopulation() {
 
-    vector<Solution> population;
     int solutionGenerated = 0;
 
-    while (solutionGenerated < populationSize) {
+    while (solutionGenerated < algorithm->genSize) {
 
-        SystemState systemState = rayHandler.propagate();
+        SystemState systemState = algorithm->rayHandler.propagate();
         if (systemState.getServiceRate() < 0.25) continue;
         Solution newSol = Solution(systemState);
 
@@ -66,6 +69,32 @@ vector<Solution> NSGAII::createInitialPopulation() {
         solutionGenerated++;
         population.push_back(newSol);
     }
+
+    return population;
+}
+
+vector<Solution> NSGAII::inputInitialPopulation(set<Solution> &inputPopulation) {
+
+
+    for (const Solution& sol : inputPopulation){
+        population.push_back(sol);
+    }
+
+    while (population.size() < algorithm->genSize) {
+
+        set<Solution> firstFront = ParetoHandler::fastNonDominatedSorting(population);
+
+        ParetoHandler::calculateCrowdingDistance(population);
+
+        ParetoHandler::updateParetoArchive(algorithm->paretoArchive, firstFront);
+
+        vector<Solution> offspring = generateOffspring(population);
+
+        population.insert(population.end(), offspring.begin(), offspring.end());
+
+    }
+
+    if (population.size() > algorithm->genSize)  selectNextGeneration(population);
 
     return population;
 }
@@ -142,7 +171,7 @@ Solution NSGAII::crossover(const Solution& parent1, const Solution& parent2) {
     }
 
     // Generate offspring SystemState using the chosen mode list
-    SystemState systemState = rayHandler.propagateGivenModes(offSpringModeList);
+    SystemState systemState = algorithm->rayHandler.propagateGivenModes(offSpringModeList);
     if (systemState.getServiceRate() < 0.25) return Solution();
     return Solution(systemState);
 }
@@ -152,16 +181,16 @@ Solution NSGAII::mutate(Solution &solution) {
         for (auto& pair : solution.getModeList()) {
 
             uniform_real_distribution<double> realDist(0.0, 1.0);
-            double randDouble = realDist(randGen);
+            double randDouble = realDist(algorithm->randGen);
 
             if (randDouble < mutationChance) {
-                std::uniform_int_distribution<int> intDist(0, graph->getNumModes(0) - 1);
-                pair.first = intDist(randGen);
+                std::uniform_int_distribution<int> intDist(0, algorithm->graph->getNumModes(0) - 1);
+                pair.first = intDist(algorithm->randGen);
 
             }
 
         }
-    SystemState newSystemState = rayHandler.propagateGivenModes(solution.getModeList());
+    SystemState newSystemState = algorithm->rayHandler.propagateGivenModes(solution.getModeList());
     Solution mutatedSolution = Solution(newSystemState);
     totalSolsCreated++;
 
@@ -187,12 +216,11 @@ vector<Solution> NSGAII::selectNextGeneration(vector<Solution>& population) {
 
         nextGeneration.push_back(sol);
 
-        if (nextGeneration.size() == populationSize) return nextGeneration;
+        if (nextGeneration.size() == algorithm->genSize) return nextGeneration;
 
     }
 
 
-    populationSize = (int)nextGeneration.size(); // optional if your size needs updating
 
     return nextGeneration;
 
@@ -201,8 +229,8 @@ vector<Solution> NSGAII::selectNextGeneration(vector<Solution>& population) {
 Solution& NSGAII::tournamentSelection(const std::vector<Solution>& population) {
     std::uniform_int_distribution<int> dist(0, population.size() - 1);
 
-    const Solution& a = population[dist(randGen)];
-    const Solution& b = population[dist(randGen)];
+    const Solution& a = population[dist(algorithm->randGen)];
+    const Solution& b = population[dist(algorithm->randGen)];
 
     // Compare based on front rank, then crowding distance
     if (a.getFrontRank() < b.getFrontRank()) return const_cast<Solution&>(a);

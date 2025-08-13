@@ -11,33 +11,27 @@
 #include "Graph/Graph.h"
 #include "Propagation/RayHandler.h"
 #include "ParetoHandler.h"
+#include "LocalSearch.h"
+#include "Algorithm.h"
+#include "NSGA-II.h"
 using namespace std;
 
-class RBAS {
+class RBAS{
 
 private:
-    Graph *graph;
-    RayHandler rayHandler;
+    Algorithm* algorithm;
     ModeHandler* modeHandler;
-    int numAntsPerCycle;
-    int numCycles;
     double evaporationRate;
     double intensityFactor;
-    std::mt19937 randGen;
-    set<Solution> paretoArchive;
-    map<int,set<Solution>> output;
-
 
 public:
 
-    RBAS(Graph& graph, int numAntsPerCycle, int numCycles, double evaporationRate, double intensityFactor):
-    graph(&graph),
-    rayHandler(RayHandler(graph)),
-    modeHandler(&rayHandler.getModeHandler()),
-    numAntsPerCycle(numAntsPerCycle),
+    RBAS(Algorithm& algorithm,double evaporationRate, double intensityFactor):
+    algorithm(&algorithm),
+    modeHandler(&algorithm.rayHandler.getModeHandler()),
     evaporationRate(evaporationRate),
-    intensityFactor(intensityFactor),
-    numCycles(numCycles){}
+    intensityFactor(intensityFactor){
+    }
 
     void run();
 
@@ -46,7 +40,7 @@ public:
     void updatePheromones(vector<Solution> &ants);
 
     map<int,set<Solution>> &getOutput(){
-        return output;
+        return algorithm->output;
     }
 
 

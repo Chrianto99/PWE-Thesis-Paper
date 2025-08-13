@@ -13,10 +13,12 @@
 #include "unordered_map"
 #include "map"
 #include "set"
+
+#pragma once
+
 using namespace std;
 
 class ParetoHandler {
-
 
 public:
 
@@ -24,7 +26,7 @@ public:
 
     static set<Solution> getFirstFront(vector<Solution>& solutions);
 
-    static set<Solution> updateParetoArchive(set<Solution> &paretoArchive, set<Solution> &newSolutions);
+    static bool updateParetoArchive(set<Solution> &paretoArchive, set<Solution> &newSolutions);
 
     static void calculateCrowdingDistance(vector<Solution> &solutions);
 
@@ -34,6 +36,6 @@ public:
 
     static bool checkRepetitionMarks(int currentRepMark, int groupSize);
 
-    static map<int, set<Solution>> mergeOutputs(map<int, set<Solution>> &oldArchive, map<int, set<Solution>> &newArchive);
+    static void mergeOutputs(map<int, set<Solution>> &oldArchive, map<int, set<Solution>> &newArchive);
 
 };

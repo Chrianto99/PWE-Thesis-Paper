@@ -92,14 +92,20 @@ set<Solution> ParetoHandler::getFirstFront(vector<Solution>& solutions) {
     return firstFront;
 }
 
-set<Solution> ParetoHandler::updateParetoArchive(set<Solution>& paretoArchive, set<Solution>& newSolutions) {
+bool ParetoHandler::updateParetoArchive(set<Solution>& paretoArchive, set<Solution>& newSolutions) {
 
-    if (paretoArchive.empty()) return newSolutions;
+    bool paretoUpdated;
 
     vector<Solution> combinedFront(paretoArchive.begin(), paretoArchive.end());
     combinedFront.insert(combinedFront.end(), newSolutions.begin(), newSolutions.end());
 
-    return getFirstFront(combinedFront);
+    set<Solution> newParetoArchive = getFirstFront(combinedFront);
+
+    paretoUpdated = !(paretoArchive == newParetoArchive);
+
+    paretoArchive = newParetoArchive;
+
+    return paretoUpdated;
 }
 
 void ParetoHandler::calculateCrowdingDistance(vector<Solution>& solutions) {
@@ -182,31 +188,29 @@ bool ParetoHandler::dominates(const Solution& p, const Solution& q) {
 
 bool ParetoHandler::checkRepetitionMarks(int currentRepMark, int groupSize){
 
-    vector<int> validMarks = {1 * 10 * groupSize, 2 * 10 * groupSize, 3 * 10 * groupSize, 4 * 10 * groupSize, 5 * 10 * groupSize};
 
-    if (find(validMarks.begin(), validMarks.end(), currentRepMark) != validMarks.end()) {
-        return true;
-    }
+    if (currentRepMark % 10 * groupSize == 0) return true;
 
-    return false;
+    return true;
 }
 
-map<int, set<Solution>> ParetoHandler::mergeOutputs(map<int, set<Solution>>& currentOutput, map<int, set<Solution>>& newOutput) {
-    if (currentOutput.empty()) return newOutput;
+void ParetoHandler::mergeOutputs(map<int, set<Solution>>& currentOutput, map<int, set<Solution>>& newOutput) {
 
-    map<int, set<Solution>> updatedOutput;
-
-    for (auto& kvP : currentOutput) {
-        int repMark = kvP.first;
-        set<Solution>& currentArchive = kvP.second;
-        set<Solution> newArchive = newOutput[repMark];
-
-        set<Solution> updatedArchive = updateParetoArchive(currentArchive, newArchive);
-
-        updatedOutput[repMark] = std::move(updatedArchive);
+    if (currentOutput.empty()){
+        currentOutput = newOutput;
+        return;
     }
 
-    return updatedOutput;
+
+    for (auto& kvP : currentOutput) {
+
+        int repMark = kvP.first;
+        //set<Solution> &currentArchive = kvP.second;
+
+        updateParetoArchive(kvP.second, newOutput[repMark]);
+
+    }
+
 }
 
 

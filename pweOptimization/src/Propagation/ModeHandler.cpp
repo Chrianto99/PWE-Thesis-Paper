@@ -89,7 +89,6 @@ void ModeHandler::activateRandomModes(SystemState &systemState){
 
     }
 
-
 }
 
 void ModeHandler::modifyModeLikelihood(vector<pair<int,int>> &modeList, double amount){

@@ -20,7 +20,6 @@ public:
 
     Room() = default;
 
-
     // Getters
     [[nodiscard]] int getNumTiles() const noexcept { return numTiles; }
     [[nodiscard]] int getNumReceivers() const noexcept { return numReceivers; }

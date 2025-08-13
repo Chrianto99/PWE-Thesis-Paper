@@ -51,8 +51,6 @@ public:
     void setType(std::string&& newType) noexcept { type = std::move(newType); }
     void setRays(std::vector<Ray>&& rayVec) noexcept { rays = std::move(rayVec); }
 
-
-
     void addToRays(Ray &ray) noexcept { rays.emplace_back(ray);}
     void clearRays(){ rays.clear();}
 

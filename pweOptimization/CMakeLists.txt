@@ -56,6 +56,9 @@ add_executable(pweOptimization
 
         include/Optimization/LocalSearch.h
         src/Optimization/LocalSearch.cpp
+        include/Optimization/Algorithm.h
+        include/Optimization/HERA.h
+        src/Optimization/HERA.cpp
 )
 
 include(FetchContent)

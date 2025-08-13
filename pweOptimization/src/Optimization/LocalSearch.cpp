@@ -4,44 +4,90 @@
 #include "Optimization/LocalSearch.h"
 
 
-Solution LocalSearch::applyLocalSearch(Solution &solution, Graph& graph, int numSearches, int repetitionMark, int groupSize){
-    RayHandler rayHandler = RayHandler(graph);
-    random_device rd;
-    mt19937 randGen(rd());
-    vector<pair<int,int>> modeList = solution.getModeList();
+void LocalSearch::applyLocalSearch(Algorithm &algorithm) {
+    int numLocalSearchesDone = 0;
+    auto &paretoArchive = algorithm.paretoArchive;
 
-    std::vector<int> indices(modeList.size());
+    for (auto it = paretoArchive.begin();
+         it != paretoArchive.end() && numLocalSearchesDone < algorithm.numLocalSearches; ) {
+
+        // If already processed, skip to next
+        if (it->localSearchApplied) {
+            ++it;
+            continue;
+        }
+
+        Solution improved = applyLocalSearchToSol(*it, algorithm);
+        numLocalSearchesDone++;
+
+        if (improved == *it) {
+            ++it; // no change, move to next
+        } else {
+            it = paretoArchive.erase(it);    // erase returns the next iterator
+            paretoArchive.insert(improved);  // insert result (we skip iterating over it immediately)
+        }
+    }
+}
+
+void LocalSearch::applyLocalSearch(Algorithm &algorithm, std::vector<Solution> &solutions) {
+    int numLocalSearchesDone = 0;
+
+    for (size_t i = 0; i < solutions.size() && numLocalSearchesDone < algorithm.numLocalSearches; ++i) {
+        Solution &current = solutions[i];
+
+        if (current.localSearchApplied) continue;
+
+        Solution improved = applyLocalSearchToSol(current, algorithm);
+        numLocalSearchesDone++;
+
+        if (improved != current) {
+            // Replace in place
+            solutions[i] = std::move(improved);
+            // Optionally decrement i if you want to reprocess the new solution
+            // i--;
+        }
+    }
+}
+
+Solution LocalSearch::applyLocalSearchToSol(const Solution &solution, Algorithm &algorithm) {
+    // Initialize RNG once per call
+    static thread_local std::mt19937 randGen(std::random_device{}());
+
+    // Copy and shuffle indices for random order
+    std::vector<int> indices(solution.getModeList().size());
     std::iota(indices.begin(), indices.end(), 0);
     std::shuffle(indices.begin(), indices.end(), randGen);
 
-    int numSearchesDone = 0;
-    for (int r : indices){
+    Solution bestSolution = solution;
+    bestSolution.localSearchApplied = true;
 
+    auto modeList = solution.getModeList(); // local copy to modify
+
+    for (int r : indices) {
         int tileId = modeList[r].first;
         int originalMode = modeList[r].second;
 
-        for (int modeId = 0; modeId < graph.getNumModes(tileId); modeId++){
-
+        for (int modeId = 0; modeId < algorithm.graph->getNumModes(tileId); ++modeId) {
             if (modeId == originalMode) continue;
 
+            // Try new mode
             modeList[r].second = modeId;
-            SystemState systemState = rayHandler.propagateGivenModes(modeList);
-            Solution newSol = Solution(systemState);
-            ParetoHandler::checkRepetitionMarks(repetitionMark + numSearchesDone, groupSize);
-            numSearchesDone++;
+            SystemState systemState = algorithm.rayHandler.propagateGivenModes(modeList);
+            Solution newSol(systemState);
+
+            // Restore original mode
             modeList[r].second = originalMode;
 
-            if (ParetoHandler::dominates(newSol,solution)) solution = std::move(newSol);
-            if (numSearchesDone >= numSearches) return solution;
-
-
+            // If new solution dominates, store it
+            if (ParetoHandler::dominates(newSol, solution)) {
+                bestSolution = std::move(newSol);
+                return bestSolution;
+            }
         }
-
-
     }
 
+    // done:
 
-
-
-
+    return bestSolution;
 }
+

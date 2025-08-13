@@ -4,6 +4,7 @@
 #include "Propagation/RayHandler.h"
 #include "Optimization/NSGA-II.h"
 #include "Optimization/RBAS.h"
+#include "Optimization/Algorithm.h"
 #include "DataCollection/DataHandler.h"
 #include <chrono>
 
@@ -16,20 +17,22 @@ using json = nlohmann::json;
 int main() {
 
     Graph* g = new Graph();
-    int numTiles = 32;
+    int numTiles = 16;
     int numUsers = 4;
     int numModes  = 0;
     int numGraphs = 100;
 
-    int groupSize =  numTiles * 1.5;
+    int groupSize = numTiles * 1.5;
     int numGenerations = 50;
     int numRepetitions = 100;
     int roomDims[3] = {10, 6, 4};
+
+
     string roomPath = "Graphs_" + to_string(roomDims[0]) + "x" + to_string(roomDims[1])
                      + "x" + to_string(roomDims[2]);
 
-    string algorithm = "NSGAII";
-
+    string algorithm = "RBAS";
+    bool localSearch = true;
 
     for (int graphID = 0; graphID < numGraphs; graphID++) {
 
@@ -50,24 +53,24 @@ int main() {
         map<int, set<Solution>> currentOutput;
 
         for (int i = 0; i < numRepetitions; ++i) {
-            //cout << i << endl;
+
+            Algorithm alg = Algorithm(*g,groupSize, numGenerations, localSearch);
+
+
             if (algorithm == "NSGAII") {
-                NSGAII alg = NSGAII(*g, groupSize, numGenerations, 0.3, 0.03);
-                alg.run();
-                map<int, set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
-                currentOutput = output;
+                NSGAII nsgaii = NSGAII(alg, 0.5, 0.05);
+                nsgaii.run();
+                ParetoHandler::mergeOutputs(currentOutput, alg.output);
             }
             else if (algorithm == "RBAS"){
-                RBAS alg = RBAS(*g, groupSize, numGenerations, 0.8, 2);
-                alg.run();
-                map<int, set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
-                currentOutput = output;
+                RBAS rbas = RBAS(alg, 0.8, 2);
+                rbas.run();
+                ParetoHandler::mergeOutputs(currentOutput, alg.output);
             }
             else if (algorithm == "BruteForce"){
-                RBAS alg = RBAS(*g, groupSize, numGenerations, 0.8, 2);
-                alg.runBruteForce();
-                map<int, set<Solution>> output = ParetoHandler::mergeOutputs(currentOutput, alg.getOutput());
-                currentOutput = output;
+                RBAS rbas = RBAS(alg, 0.8, 2);
+                rbas.runBruteForce();
+                ParetoHandler::mergeOutputs(currentOutput, alg.output);
 
             }
 
@@ -75,7 +78,7 @@ int main() {
         }
         end = std::chrono::high_resolution_clock::now();
         duration = duration_cast<std::chrono::milliseconds>(end - start);
-        durationPerPropagation = duration.count() / 100;
+        durationPerPropagation = duration.count() / numRepetitions;
         cout << "Time taken: " << durationPerPropagation << " ms" << endl;
 
         DataHandler dataHandler = DataHandler();
@@ -89,7 +92,11 @@ int main() {
 
         AlgorithmOutput data = dataHandler.returnData(convertedOutput,
                                                       vector<string>{"averageDelaySpread", "averagePower"});
-        string writePath = roomPath + "/results/" + algorithm;
+        string writePath;
+        if (localSearch) writePath = roomPath + "/results/" + algorithm + "-NSGAII-LS";
+
+        else writePath = roomPath + "/results/" + algorithm;
+
         data.writeToJson(writePath, graphID, numTiles, numUsers);
     }
 

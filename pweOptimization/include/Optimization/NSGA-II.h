@@ -13,37 +13,35 @@
 #include "Graph/Graph.h"
 #include "Propagation/RayHandler.h"
 #include "Solution.h"
+#include "Algorithm.h"
+#include "LocalSearch.h"
+#pragma once
 
 using namespace std;
 
 class NSGAII{
 private:
-
-    Graph* graph;
-    RayHandler rayHandler;
-    int populationSize;
-    int numGenerations ,genCount = 0, totalSolsCreated = 0;
+    Algorithm* algorithm;
+    int totalSolsCreated = 0;
     double crossoverChance;
     double mutationChance;
-    std::mt19937 randGen;
-    set<Solution> paretoArchive;
-    map<int,set<Solution>> output;
+    vector<Solution> population;
+
+
 
 
 public:
 
-    NSGAII(Graph& graph, int populationSize, int numGenerations, double crossoverChance, double mutationChance)
-            : graph(&graph),
-              populationSize(populationSize),
-              numGenerations(numGenerations),
+    NSGAII(Algorithm& algorithm, double crossoverChance, double mutationChance)
+            : algorithm(&algorithm),
               crossoverChance(crossoverChance),
-              mutationChance(mutationChance),
-              rayHandler(RayHandler(graph)) // initialize with new
-    {}
+              mutationChance(mutationChance){}
 
     void run();
 
     vector<Solution> createInitialPopulation();
+
+    vector<Solution> inputInitialPopulation(set<Solution> &population);
 
     vector<Solution> generateOffspring(vector<Solution> &population);
 
@@ -95,9 +93,6 @@ public:
 
     void setParetoArchive(const vector<Solution> &paretoArchive);
 
-    map<int,set<Solution>> &getOutput(){
-        return output;
-    }
 
 
 };

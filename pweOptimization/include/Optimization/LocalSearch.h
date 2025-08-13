@@ -6,12 +6,22 @@
 #include "Propagation/RayHandler.h"
 #include "Optimization/ParetoHandler.h"
 #include "random"
+#include "Algorithm.h"
 
 #ifndef PWEOPTIMIZATION_LOCALSEARCH_H
 #define PWEOPTIMIZATION_LOCALSEARCH_H
 
 #endif //PWEOPTIMIZATION_LOCALSEARCH_H
+
+#pragma once
 class LocalSearch{
-private:
-        static Solution applyLocalSearch(Solution &solution, Graph& graph, int numSearches, int repetitionMark, int groupSize);
+public:
+        static void applyLocalSearch(Algorithm &algorithm);
+
+        static void applyLocalSearch(Algorithm &algorithm, vector<Solution> &solutions);
+
+        static Solution applyLocalSearchToSol(const Solution &solution, Algorithm &algorithm);
+
+
+        static void localSearchControl(int numGenerations, int& currentNumLocalSearches);
 };

@@ -46,7 +46,6 @@ public:
 
     [[nodiscard]] const vector<Ray> &getInputRays() const noexcept { return inputRays; }
 
-
     [[nodiscard]] const TxConfig &getTxConfig() const noexcept { return txConfig; }
 
     [[nodiscard]] const TileConfig &getTileConfig() const noexcept { return tileConfig; }
@@ -62,7 +61,6 @@ public:
     [[nodiscard]] int getNumModes(int tileId){return allNodes[tileId].getNumModes();}
 
 
-
     // Setters
     void setAllNodes(const std::vector<Node> &nodes) noexcept { allNodes = nodes; }
 
@@ -76,27 +74,11 @@ public:
 
     void setRoom(const Room &r) noexcept { room = r; }
 
-    void setReceivers() {
-        for (Node &node: allNodes) {
-            if (node.getType() == "Rx") {
-                receivers.emplace_back(&node);
-            }
-        }
-    }
-
-    void setTiles() {
-        for (Node &node: allNodes) {
-            if (node.getType() == "Tile") {
-                tiles.emplace_back(&node);
-            }
-        }
-    }
-
     friend void to_json(nlohmann::json& j, const Graph& g);
+
     friend void from_json(const nlohmann::json& j, Graph& g);
 
     void loadGraph(string path, Graph& g);
-    void printGraph();
 
 
 

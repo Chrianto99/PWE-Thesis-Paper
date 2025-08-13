@@ -7,8 +7,6 @@
 
 #include <nlohmann/json.hpp>
 
-
-
 class Edge {
 
 private:
