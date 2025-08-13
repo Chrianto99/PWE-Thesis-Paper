@@ -9,16 +9,18 @@
 
 #include "vector"
 #include "string"
+
 using namespace std;
-class Point{
+
+class Point {
 private:
     vector<double> cords;
 
 public:
 
-    Point(const map<string, double> &objectives,const vector<string> &objectiveLabels){
+    Point(const map<string, double> &objectives, const vector<string> &objectiveLabels) {
 
-        for (auto &label : objectiveLabels){
+        for (auto &label: objectiveLabels) {
             cords.push_back(objectives.at(label));
         }
 

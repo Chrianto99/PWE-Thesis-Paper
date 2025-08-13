@@ -10,25 +10,18 @@ add_executable(pweOptimization
         main.cpp
 
         include/Graph/Graph.h
-        src/Graph/Graph.cpp
 
         include/Graph/Edge.h
-        src/Graph/Edge.cpp
 
         include/Graph/Node.h
-        src/Graph/Node.cpp
 
         include/Graph/Room.h
-        src/Graph/Room.cpp
 
         include/Graph/TxConfig.h
-        src/Graph/TxConfig.cpp
 
         include/Graph/TileConfig.h
-        src/Graph/TileConfig.cpp
 
         include/Propagation/Ray.h
-        src/Propagation/Ray.cpp
 
         include/Propagation/ModeHandler.h
         src/Propagation/ModeHandler.cpp
@@ -37,7 +30,6 @@ add_executable(pweOptimization
         src/Propagation/RayHandler.cpp
 
         include/Propagation/SystemState.h
-        src/Propagation/SystemState.cpp
 
         include/Optimization/NSGA-II.h
         src/Optimization/NSGA-II.cpp

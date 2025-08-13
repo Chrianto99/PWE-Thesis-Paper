@@ -14,23 +14,24 @@
 #include "LocalSearch.h"
 #include "Algorithm.h"
 #include "NSGA-II.h"
+
 using namespace std;
 
-class RBAS{
+class RBAS {
 
 private:
-    Algorithm* algorithm;
-    ModeHandler* modeHandler;
+    Algorithm *algorithm;
+    ModeHandler *modeHandler;
     double evaporationRate;
     double intensityFactor;
 
 public:
 
-    RBAS(Algorithm& algorithm,double evaporationRate, double intensityFactor):
-    algorithm(&algorithm),
-    modeHandler(&algorithm.rayHandler.getModeHandler()),
-    evaporationRate(evaporationRate),
-    intensityFactor(intensityFactor){
+    RBAS(Algorithm &algorithm, double evaporationRate, double intensityFactor) :
+            algorithm(&algorithm),
+            modeHandler(&algorithm.rayHandler.getModeHandler()),
+            evaporationRate(evaporationRate),
+            intensityFactor(intensityFactor) {
     }
 
     void run();
@@ -38,10 +39,5 @@ public:
     void runBruteForce();
 
     void updatePheromones(vector<Solution> &ants);
-
-    map<int,set<Solution>> &getOutput(){
-        return algorithm->output;
-    }
-
 
 };

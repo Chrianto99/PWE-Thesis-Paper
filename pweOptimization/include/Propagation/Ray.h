@@ -38,23 +38,24 @@ public:
 
     [[nodiscard]] int getLastEdgeId() const noexcept { return edges.back(); }
 
-    // Setters
-    void setPower(double p) noexcept { power = p; }
-
-    void setLength(double len) noexcept { length = len; }
-
-    void setCurrentNodeId(int nodeId) noexcept { currentNode_id = nodeId; }
-
-    void setEdges(const std::vector<int> &edgeList) noexcept { edges = edgeList; }
-
-    void setEdges(std::vector<int> &&edgeList) noexcept { edges = std::move(edgeList); }
-
     // Optional: Add method to append to edges
     void addEdge(int edgeId) noexcept { edges.push_back(edgeId); }
 
-    friend void to_json(nlohmann::json& j, const Ray& r);
-    friend void from_json(const nlohmann::json& j, Ray& r);
+    friend void to_json(nlohmann::json &j, const Ray &r) {
+        j = {
+                {"power",          r.power},
+                {"length",         r.length},
+                {"currentNode_id", r.currentNode_id},
+                {"edges",          r.edges}
+        };
+    }
 
+    friend void from_json(const nlohmann::json &j, Ray &r) {
+        j.at("power").get_to(r.power);
+        j.at("length").get_to(r.length);
+        j.at("currentNode_id").get_to(r.currentNode_id);
+        j.at("edges").get_to(r.edges);
+    }
 
 };
 

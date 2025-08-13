@@ -17,33 +17,33 @@ using json = nlohmann::json;
 
 class AlgorithmOutput {
 private:
-    map<int,vector<Solution>> output;
-    map<int,vector<vector<double>>> fronts;
-    map<int,double> hyperVolumes;
+    map<int, vector<Solution>> output;
+    map<int, vector<vector<double>>> fronts;
+    map<int, double> hyperVolumes;
     vector<string> objectiveLabels;
 
 public:
     AlgorithmOutput() = default;
 
-    AlgorithmOutput(const map<int,vector<Solution>> &input, const vector<string> &objectiveLabels){
+    AlgorithmOutput(const map<int, vector<Solution>> &input, const vector<string> &objectiveLabels) {
         output = input;
         this->objectiveLabels = objectiveLabels;
     }
 
-    void setFronts(const map<int,vector<vector<double>>> &fronts){
+    void setFronts(const map<int, vector<vector<double>>> &fronts) {
         this->fronts = fronts;
     }
 
-    void setHyperVolumes(const map<int,double> &hyperVolumes){
+    void setHyperVolumes(const map<int, double> &hyperVolumes) {
         this->hyperVolumes = hyperVolumes;
     }
 
 
-    [[nodiscard]] const map<int,vector<vector<double>>> &getFronts() const{
+    [[nodiscard]] const map<int, vector<vector<double>>> &getFronts() const {
         return fronts;
     }
 
-    void writeToJson(const std::string& folderName, int graphID, int numTiles, int numUsers) const {
+    void writeToJson(const std::string &folderName, int graphID, int numTiles, int numUsers) const {
         namespace fs = std::filesystem;
 
         // Create the main directory

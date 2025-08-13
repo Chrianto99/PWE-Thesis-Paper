@@ -4,8 +4,8 @@
 
 #ifndef PWEOPTIMIZATION_TILECONFIG_H
 #define PWEOPTIMIZATION_TILECONFIG_H
-#include <nlohmann/json.hpp>
 
+#include <nlohmann/json.hpp>
 
 
 class TileConfig {
@@ -20,30 +20,26 @@ class TileConfig {
 public:
     // Constructor (optional)
     TileConfig() = default;
-    TileConfig(int elements, double spacing, double gain, double maxG, double dim, double lambda)
-            : numElements(elements), elementSpacing(spacing), elementGain(gain),
-              maxGain(maxG), maxDim(dim), wavelength(lambda) {}
 
-    // Getters
-    [[nodiscard]] int getNumElements() const noexcept { return numElements; }
-    [[nodiscard]] double getElementSpacing() const noexcept { return elementSpacing; }
-    [[nodiscard]] double getElementGain() const noexcept { return elementGain; }
-    [[nodiscard]] double getMaxGain() const noexcept { return maxGain; }
-    [[nodiscard]] double getMaxDim() const noexcept { return maxDim; }
-    [[nodiscard]] double getWavelength() const noexcept { return wavelength; }
+    friend void to_json(nlohmann::json &j, const TileConfig &t) {
+        j = {
+                {"numElements",    t.numElements},
+                {"elementSpacing", t.elementSpacing},
+                {"elementGain",    t.elementGain},
+                {"maxGain",        t.maxGain},
+                {"maxDim",         t.maxDim},
+                {"wavelength",     t.wavelength}
+        };
+    }
 
-    // Setters
-    void setNumElements(int elements) noexcept { numElements = elements; }
-    void setElementSpacing(double spacing) noexcept { elementSpacing = spacing; }
-    void setElementGain(double gain) noexcept { elementGain = gain; }
-    void setMaxGain(double maxG) noexcept { maxGain = maxG; }
-    void setMaxDim(double dim) noexcept { maxDim = dim; }
-    void setWavelength(double lambda) noexcept { wavelength = lambda; }
-
-    friend void to_json(nlohmann::json& j, const TileConfig& tC);
-    friend void from_json(const nlohmann::json& j, TileConfig& tC);
-
-
+    friend void from_json(const nlohmann::json &j, TileConfig &t) {
+        j.at("numElements").get_to(t.numElements);
+        j.at("elementSpacing").get_to(t.elementSpacing);
+        j.at("elementGain").get_to(t.elementGain);
+        j.at("maxGain").get_to(t.maxGain);
+        j.at("maxDim").get_to(t.maxDim);
+        j.at("wavelength").get_to(t.wavelength);
+    }
 
 
 };

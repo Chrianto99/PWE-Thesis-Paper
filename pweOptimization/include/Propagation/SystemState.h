@@ -17,7 +17,7 @@ using namespace std;
 
 class SystemState {
 private:
-    vector<pair<int,int>> modeList;
+    vector<pair<int, int>> modeList;
     vector<double> receiverDelaySpreads;
     vector<double> receiverPowers;
     vector<double> receiverRayCounts;
@@ -28,19 +28,22 @@ private:
 public:
 
     SystemState() = default;
-    SystemState(const SystemState&) = default;
-    SystemState& operator=(const SystemState&) = default;
 
-    SystemState(SystemState&&) = default;
-    SystemState& operator=(SystemState&&) = default;
+    SystemState(const SystemState &) = default;
 
-    void addDataToSystemState(double delaySpread, double power, double rayCount){
+    SystemState &operator=(const SystemState &) = default;
+
+    SystemState(SystemState &&) = default;
+
+    SystemState &operator=(SystemState &&) = default;
+
+    void addDataToSystemState(double delaySpread, double power, double rayCount) {
         receiverDelaySpreads.emplace_back(delaySpread);
         receiverPowers.emplace_back(power);
         receiverRayCounts.emplace_back(rayCount);
     }
 
-    void addActiveMode(pair<int,int> pair) {
+    void addActiveMode(pair<int, int> pair) {
         modeList.emplace_back(pair);
     }
 
@@ -72,14 +75,13 @@ public:
         return averagePower;
     }
 
-    [[nodiscard]] const vector<pair<int,int>> &getModeList() const {
+    [[nodiscard]] const vector<pair<int, int>> &getModeList() const {
         return modeList;
     }
 
-    [[nodiscard]] vector<pair<int,int>> &getModeList() {
+    [[nodiscard]] vector<pair<int, int>> &getModeList() {
         return modeList;
     }
-
 
 
     void setAverageDelaySpread() {
@@ -88,7 +90,7 @@ public:
 
     }
 
-    void setMaxDelaySpread(){
+    void setMaxDelaySpread() {
         maxDelaySpread = *std::max_element(receiverDelaySpreads.begin(), receiverDelaySpreads.end());
     }
 
@@ -98,15 +100,15 @@ public:
         averagePower = sum / receiverPowers.size();
     }
 
-    void setMinPower(){
+    void setMinPower() {
         minPower = *std::min_element(receiverPowers.begin(), receiverPowers.end());
     }
 
-    void setServiceRate(double serviceRate){
+    void setServiceRate(double serviceRate) {
         this->serviceRate = serviceRate;
     }
 
-    double getServiceRate(){
+    double getServiceRate() {
         return this->serviceRate;
     }
 
@@ -116,7 +118,7 @@ public:
 
         cout << "Active Modes (nodeId.modeId):\n";
 
-        for (pair<int,int> pair : modeList){
+        for (pair<int, int> pair: modeList) {
             cout << pair.first << "-" << pair.second << "  ";
         }
         cout << endl;
@@ -137,7 +139,7 @@ public:
         cout << "Min Power: " << minPower << "\n";
     }
 
-    void clear(){
+    void clear() {
         modeList.clear();
         receiverPowers.clear();
         receiverDelaySpreads.clear();
