@@ -62,17 +62,23 @@ public:
         return routingTable.at(key);
     }
 
+    bool hasNoRays() { return rays.empty(); }
+
+    bool hasOneRay() { return rays.size() == 1; }
+
+    bool isRx() { return type == "Rx"; }
+
     //json
-    friend void to_json(nlohmann::json& j, const Node& n) {
+    friend void to_json(nlohmann::json &j, const Node &n) {
         j = {
-                {"id", n.id},
+                {"id",            n.id},
                 {"numberOfModes", n.numberOfModes},
-                {"routingTable", n.routingTable},
-                {"type", n.type},
+                {"routingTable",  n.routingTable},
+                {"type",          n.type},
         };
     }
 
-    friend void from_json(const nlohmann::json& j, Node& n) {
+    friend void from_json(const nlohmann::json &j, Node &n) {
         j.at("id").get_to(n.id);
         j.at("numberOfModes").get_to(n.numberOfModes);
         j.at("routingTable").get_to(n.routingTable);

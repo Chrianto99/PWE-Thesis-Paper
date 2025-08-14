@@ -7,7 +7,6 @@
 
 #include "map"
 #include "Optimization/Solution.h"
-#include "Point.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
 

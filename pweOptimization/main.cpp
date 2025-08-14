@@ -17,7 +17,7 @@ using json = nlohmann::json;
 int main() {
 
     Graph* g = new Graph();
-    int numTiles = 16;
+    int numTiles = 32;
     int numUsers = 4;
     int numModes  = 0;
     int numGraphs = 100;
@@ -43,7 +43,6 @@ int main() {
 
         g->loadGraph(graphPath, *g);
 
-
         auto start = std::chrono::high_resolution_clock::now();
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = duration_cast<std::chrono::milliseconds>(end - start);
@@ -56,19 +55,18 @@ int main() {
 
             Algorithm alg = Algorithm(*g,groupSize, numGenerations, localSearch);
 
-
             if (algorithm == "NSGAII") {
-                NSGAII nsgaii = NSGAII(alg, 0.5, 0.05);
+                NSGAII nsgaii = NSGAII(alg, 0.03);
                 nsgaii.run();
                 ParetoHandler::mergeOutputs(currentOutput, alg.output);
             }
             else if (algorithm == "RBAS"){
-                RBAS rbas = RBAS(alg, 0.8, 2);
+                RBAS rbas = RBAS(alg, 0.8, 1, 0.5);
                 rbas.run();
                 ParetoHandler::mergeOutputs(currentOutput, alg.output);
             }
             else if (algorithm == "BruteForce"){
-                RBAS rbas = RBAS(alg, 0.8, 2);
+                RBAS rbas = RBAS(alg, 0.8, 1, 0.5);
                 rbas.runBruteForce();
                 ParetoHandler::mergeOutputs(currentOutput, alg.output);
 

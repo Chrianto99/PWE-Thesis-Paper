@@ -76,13 +76,13 @@ int ModeHandler::chooseMode(int tileId) {
 
 }
 
-void ModeHandler::activateRandomModes(SystemState &systemState){
+void ModeHandler::activateRandomModes(SystemState &systemState) {
 
-    for (auto tile : graph->getTiles()){
+    for (auto tile: graph->getTiles()) {
 
         uniform_int_distribution<int> dist(0, graph->getNumModes(tile->getId()) - 1);  // Define the range [0, 19]
         int mode = dist(randGen);   // Generate random number
-        systemState.addActiveMode({tile->getId(),mode});
+        systemState.addActiveMode({tile->getId(), mode});
         tile->setActive(true);
         tile->setActiveMode(mode);
 
@@ -91,13 +91,26 @@ void ModeHandler::activateRandomModes(SystemState &systemState){
 
 }
 
-void ModeHandler::modifyModeLikelihood(vector<pair<int,int>> &modeList, double amount){
+void ModeHandler::modifyModeLikelihood(vector<pair<int, int>> &modeList, double amount) {
 
-    for (auto &pair : modeList){
+    for (auto &pair: modeList) {
         int tileId = pair.first;
         int modeId = pair.second;
         tileDistributions[tileId][modeId] += amount;
     }
+
+}
+
+void ModeHandler::increaseModeLikelihood(pair<int, int> pair, double amount) {
+    int tileId = pair.first;
+    int modeId = pair.second;
+    tileDistributions[tileId][modeId] += amount;
+}
+
+void ModeHandler::scaleModeLikelihood(pair<int, int> pair, double multiplier) {
+    int tileId = pair.first;
+    int modeId = pair.second;
+    tileDistributions[tileId][modeId] *= multiplier;
 
 }
 

@@ -24,19 +24,23 @@ private:
     ModeHandler *modeHandler;
     double evaporationRate;
     double intensityFactor;
-
+    // reward multiplier
+    double alpha; // [0,1] defines relational rewarding between front ranks (large alpha --> elitism)
+    vector<Solution> ants;
 public:
 
-    RBAS(Algorithm &algorithm, double evaporationRate, double intensityFactor) :
+    RBAS(Algorithm &algorithm, double evaporationRate, double intensityFactor, double alpha) :
             algorithm(&algorithm),
             modeHandler(&algorithm.rayHandler.getModeHandler()),
             evaporationRate(evaporationRate),
-            intensityFactor(intensityFactor) {
-    }
+            intensityFactor(intensityFactor),
+            alpha(alpha){}
 
     void run();
 
     void runBruteForce();
+
+    void sendAnts();
 
     void updatePheromones(vector<Solution> &ants);
 

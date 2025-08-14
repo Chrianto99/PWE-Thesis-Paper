@@ -19,47 +19,45 @@ using json = nlohmann::json;
 
 class Solution {
 private:
-
-    vector<pair<int, int>> input;
-    vector<string> print;
-    map<string, double> objectives;
-    int frontRank;
-    double crowdingDistance;
+    vector<pair<int, int>> input; // (nodeId, modeId) pairs
+    map<string, double> objectives; // map : objective name --> objective value
+    double serviceRate; // defines the percentage of users that receive signal
+    int frontRank; // front rank calculated by FNDS function in ParetoHandler
+    double crowdingDistance; // crowding distance calculated by cd func in ParetoHandler
 
 public:
 
     bool localSearchApplied;
 
-
     Solution() = default;
 
-    Solution(const SystemState &systemState) {
+    explicit Solution(const SystemState &systemState) {
         this->input = systemState.getModeList();
+        serviceRate = systemState.getServiceRate();
         objectives["averageDelaySpread"] = systemState.getAverageDelaySpread();
         objectives["averagePower"] = -systemState.getAveragePower();
-        for (auto &pair: input) {
-            print.push_back(to_string(pair.first) + "." + to_string(pair.second));
-        }
         localSearchApplied = false;
-
+        frontRank = 100;
+        crowdingDistance = 100;
     }
 
-    int getFrontRank() const { return frontRank; }
+    [[nodiscard]] int getFrontRank() const { return frontRank; }
+
+    [[nodiscard]] double getCrowdingDistance() const { return crowdingDistance; }
+
+    [[nodiscard]] const vector<pair<int, int>> &getModeList() const { return input; }
+
+    [[nodiscard]] const map<string, double> &getObjectives() const { return objectives; }
+
+    map<string, double> &getObjectives() { return objectives; }
+
+    vector<pair<int, int>> &getModeList() { return input; }
 
 
     void setFrontRank(int rank) { frontRank = rank; }
 
-    double getCrowdingDistance() const { return crowdingDistance; }
-
     void setCrowdingDistance(double distance) { crowdingDistance = distance; }
 
-    vector<pair<int, int>> &getModeList() { return input; }
-
-    const vector<pair<int, int>> &getModeList() const { return input; }
-
-    const map<string, double> &getObjectives() const { return objectives; }
-
-    map<string, double> &getObjectives() { return objectives; }
 
     bool operator<(const Solution &other) const { return objectives < other.objectives; }
 
@@ -73,9 +71,6 @@ public:
         for (const auto &p: input) {
             inputJson.push_back({p.first, p.second});
         }
-
-        // Serialize print as array of strings
-        json printJson = print;
 
         // Serialize objectives (map)
         json objectivesJson;

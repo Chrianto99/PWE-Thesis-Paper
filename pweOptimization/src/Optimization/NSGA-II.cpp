@@ -14,7 +14,7 @@ void NSGAII::run() {
     // Time initial population creation
     if (population.empty() || population.size() == 1) population = createInitialPopulation(); //parallelize
 
-    int& genCount = algorithm->currentNumCycles;
+    int &genCount = algorithm->currentNumCycles;
     while (genCount < algorithm->numGenerations + 1) {
 
         if (genCount == 0) {
@@ -31,8 +31,10 @@ void NSGAII::run() {
         // Insert offspring into population
         population.insert(population.end(), offspring.begin(), offspring.end());
 
-        algorithm->numLocalSearches = 1;
-        LocalSearch::applyLocalSearch(*algorithm, population);
+        if (algorithm->localSearch){
+            algorithm->numLocalSearches = 1;
+            LocalSearch::applyLocalSearch(*algorithm, population);
+        }
 
         // Fast non-dominated sorting
         set<Solution> firstFront = ParetoHandler::fastNonDominatedSorting(population); //parallelize
@@ -75,8 +77,7 @@ vector<Solution> NSGAII::createInitialPopulation() {
 
 vector<Solution> NSGAII::inputInitialPopulation(set<Solution> &inputPopulation) {
 
-
-    for (const Solution& sol : inputPopulation){
+    for (const Solution &sol: inputPopulation) {
         population.push_back(sol);
     }
 
@@ -94,22 +95,20 @@ vector<Solution> NSGAII::inputInitialPopulation(set<Solution> &inputPopulation) 
 
     }
 
-    if (population.size() > algorithm->genSize)  selectNextGeneration(population);
+    if (population.size() > algorithm->genSize) selectNextGeneration(population);
 
     return population;
 }
 
 
-
-vector<Solution> NSGAII::generateOffspring(vector<Solution>& population) {
+vector<Solution> NSGAII::generateOffspring() {
     vector<Solution> offspring;
     int popSize = population.size();
 
     while (offspring.size() < popSize) {
         // Select parents using tournament selection
-        Solution& parent1 = tournamentSelection(population);
-        Solution& parent2 = tournamentSelection(population);
-
+        Solution &parent1 = tournamentSelection(population);
+        Solution &parent2 = tournamentSelection(population);
 
         Solution child;
         while (child.getModeList().empty()) {
@@ -125,31 +124,56 @@ vector<Solution> NSGAII::generateOffspring(vector<Solution>& population) {
     return offspring;
 }
 
+vector<Solution> NSGAII::selectNextGeneration() {
+
+    auto compareFrontRankCrowding = [](const Solution &a, const Solution &b) {
+        if (a.getFrontRank() != b.getFrontRank()) {
+            return a.getFrontRank() < b.getFrontRank();
+        } else {
+            // Crowding distance is sorted descending (larger better)
+            return a.getCrowdingDistance() > b.getCrowdingDistance();
+        }
+    };
+
+    std::sort(population.begin(), population.end(), compareFrontRankCrowding);
+    vector<Solution> nextGeneration;
+
+    for (auto &sol: population) {
+
+        nextGeneration.push_back(sol);
+
+        if (nextGeneration.size() == algorithm->genSize) return nextGeneration;
+
+    }
 
 
-Solution NSGAII::crossover(const Solution& parent1, const Solution& parent2) {
-    const auto& modeList1 = parent1.getModeList();
-    const auto& modeList2 = parent2.getModeList();
+    return nextGeneration;
+
+}
+
+Solution NSGAII::crossover(const Solution &parent1, const Solution &parent2) {
+    const auto &modeList1 = parent1.getModeList();
+    const auto &modeList2 = parent2.getModeList();
 
     unordered_map<int, int> map1, map2;
 
     // Convert parent1's mode list to map
-    for (const auto& [nodeId, mode] : modeList1) {
+    for (const auto &[nodeId, mode]: modeList1) {
         map1[nodeId] = mode;
     }
 
     // Convert parent2's mode list to map
-    for (const auto& [nodeId, mode] : modeList2) {
+    for (const auto &[nodeId, mode]: modeList2) {
         map2[nodeId] = mode;
     }
 
     unordered_set<int> allNodeIds;
-    for (const auto& [id, _] : map1) allNodeIds.insert(id);
-    for (const auto& [id, _] : map2) allNodeIds.insert(id);
+    for (const auto &[id, _]: map1) allNodeIds.insert(id);
+    for (const auto &[id, _]: map2) allNodeIds.insert(id);
 
     vector<pair<int, int>> offSpringModeList;
 
-    for (int nodeId : allNodeIds) {
+    for (int nodeId: allNodeIds) {
         bool in1 = map1.count(nodeId);
         bool in2 = map2.count(nodeId);
 
@@ -172,24 +196,24 @@ Solution NSGAII::crossover(const Solution& parent1, const Solution& parent2) {
 
     // Generate offspring SystemState using the chosen mode list
     SystemState systemState = algorithm->rayHandler.propagateGivenModes(offSpringModeList);
-    if (systemState.getServiceRate() < 0.25) return Solution();
+    if (systemState.getServiceRate() == 0) return Solution();
     return Solution(systemState);
 }
 
 Solution NSGAII::mutate(Solution &solution) {
 
-        for (auto& pair : solution.getModeList()) {
+    for (auto &pair: solution.getModeList()) {
 
-            uniform_real_distribution<double> realDist(0.0, 1.0);
-            double randDouble = realDist(algorithm->randGen);
+        uniform_real_distribution<double> realDist(0.0, 1.0);
+        double randDouble = realDist(algorithm->randGen);
 
-            if (randDouble < mutationChance) {
-                std::uniform_int_distribution<int> intDist(0, algorithm->graph->getNumModes(0) - 1);
-                pair.first = intDist(algorithm->randGen);
-
-            }
+        if (randDouble < mutationChance) {
+            std::uniform_int_distribution<int> intDist(0, algorithm->graph->getNumModes(0) - 1);
+            pair.first = intDist(algorithm->randGen);
 
         }
+
+    }
     SystemState newSystemState = algorithm->rayHandler.propagateGivenModes(solution.getModeList());
     Solution mutatedSolution = Solution(newSystemState);
     totalSolsCreated++;
@@ -198,47 +222,20 @@ Solution NSGAII::mutate(Solution &solution) {
 
 }
 
-vector<Solution> NSGAII::selectNextGeneration(vector<Solution>& population) {
 
-    auto compareFrontRankCrowding = [](const Solution& a, const Solution& b) {
-        if (a.getFrontRank() != b.getFrontRank()) {
-            return a.getFrontRank() < b.getFrontRank();
-        } else {
-            // Crowding distance is sorted descending (larger better)
-            return a.getCrowdingDistance() > b.getCrowdingDistance();
-        }
-    };
-
-    std::sort(population.begin(), population.end(),compareFrontRankCrowding);
-    vector<Solution> nextGeneration;
-
-    for (auto& sol : population) {
-
-        nextGeneration.push_back(sol);
-
-        if (nextGeneration.size() == algorithm->genSize) return nextGeneration;
-
-    }
-
-
-
-    return nextGeneration;
-
-}
-
-Solution& NSGAII::tournamentSelection(const std::vector<Solution>& population) {
+Solution &NSGAII::tournamentSelection() {
     std::uniform_int_distribution<int> dist(0, population.size() - 1);
 
-    const Solution& a = population[dist(algorithm->randGen)];
-    const Solution& b = population[dist(algorithm->randGen)];
+    const Solution &a = population[dist(algorithm->randGen)];
+    const Solution &b = population[dist(algorithm->randGen)];
 
     // Compare based on front rank, then crowding distance
-    if (a.getFrontRank() < b.getFrontRank()) return const_cast<Solution&>(a);
-    if (b.getFrontRank() < a.getFrontRank()) return const_cast<Solution&>(b);
+    if (a.getFrontRank() < b.getFrontRank()) return const_cast<Solution &>(a);
+    if (b.getFrontRank() < a.getFrontRank()) return const_cast<Solution &>(b);
 
     return (a.getCrowdingDistance() > b.getCrowdingDistance())
-           ? const_cast<Solution&>(a)
-           : const_cast<Solution&>(b);
+           ? const_cast<Solution &>(a)
+           : const_cast<Solution &>(b);
 }
 
 

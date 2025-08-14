@@ -26,6 +26,7 @@ private:
     vector<Node> allNodes;
     vector<Edge> allEdges;
     vector<Ray> inputRays;
+
     TxConfig txConfig;
     TileConfig tileConfig;
     Room room;
@@ -35,10 +36,9 @@ private:
 
 public:
 
+    Node &getNode(int id) noexcept { return allNodes[id]; }
 
     [[nodiscard]] vector<Node> &getAllNodes() noexcept { return allNodes; }
-
-    Node &getNode(int id) noexcept { return allNodes[id]; }
 
     [[nodiscard]] Edge &getEdge(int id) noexcept { return allEdges[id]; }
 

@@ -21,6 +21,4 @@ public:
         static void applyLocalSearch(Algorithm &algorithm, vector<Solution> &solutions);
 
         static Solution applyLocalSearchToSol(const Solution &solution, Algorithm &algorithm);
-
-        static void localSearchControl(int numGenerations, int& currentNumLocalSearches);
 };

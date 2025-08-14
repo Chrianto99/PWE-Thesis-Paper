@@ -13,7 +13,6 @@
 
 class RayHandler {
 
-
 private:
     Graph* graph;
     std::vector<Ray> newRays;
@@ -36,10 +35,12 @@ public:
 
     }
 
+    // Emulates system propagation , picking modes according to distribution
+    // Distribution defaults to uniform
+    // Uses reflectRay , estimateSignal() and restoreSystem()
     SystemState propagate();
 
-    SystemState propagateRandom();
-
+    // Does the same but given a predefined set of active EM functions
     SystemState propagateGivenModes(const vector<pair<int,int>> &modeList);
 
     void reflectRay(Ray& ray);
@@ -47,10 +48,6 @@ public:
     void estimateSignal();
 
     void restoreSystem();
-
-    SystemState &getSystemState(){
-        return systemState;
-    }
 
     ModeHandler &getModeHandler()  {
         return modeHandler;

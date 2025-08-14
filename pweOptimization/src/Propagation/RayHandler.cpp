@@ -13,7 +13,6 @@ SystemState RayHandler::propagate() {
     while (!currentRays.empty()) {
 
         for (Ray &ray: currentRays) {
-
             reflectRay(ray);
         }
 
@@ -30,8 +29,6 @@ SystemState RayHandler::propagate() {
     return output;
 
 }
-
-
 
 
 void RayHandler::reflectRay(Ray &ray) {
@@ -66,11 +63,9 @@ void RayHandler::reflectRay(Ray &ray) {
         ray.addEdge(outputEdgeId);
         Ray newRay = Ray(totalPower, totalLength, destNode.getId(), ray.getEdges());
 
-        if (destNode.getType() == "Rx") destNode.addToRays(newRay);
+        if (destNode.isRx()) destNode.addToRays(newRay);
 
         else newRays.push_back(newRay);
-
-
 
 
     }
@@ -84,14 +79,14 @@ void RayHandler::estimateSignal() {
     for (Node *nodePtr: receivers) {
 
         Node &receiver = *nodePtr;
-        if (receiver.getRays().empty()){
-           systemState.addDataToSystemState(0,0,0);
-           numUnvisitedReceivers++;
-           continue;
+        if (receiver.hasNoRays()) {
+            systemState.addDataToSystemState(0, 0, 0);
+            numUnvisitedReceivers++;
+            continue;
         }
-        if (receiver.getRays().size() == 1){
+        if (receiver.hasOneRay()) {
             double power = receiver.getRays().front().getPower();
-            systemState.addDataToSystemState(0,power,1);
+            systemState.addDataToSystemState(0, power, 1);
             continue;
         }
         int numRays = 0;
@@ -116,67 +111,35 @@ void RayHandler::estimateSignal() {
         if (abs(delaySpread) < tolerance) delaySpread = 0;
         if (isnan(delaySpread)) delaySpread = 0;
 
-
-
-
         systemState.addDataToSystemState(delaySpread, power, numRays);
 
     }
-    //cout << numUnvisitedReceivers << endl;
     systemState.setAverageDelaySpread();
     systemState.setAveragePower();
     systemState.setServiceRate((receivers.size() - numUnvisitedReceivers) / receivers.size());
-//    if (isnan(systemState.getAverageDelaySpread())) cout << systemState.getAverageDelaySpread();
 
 }
-
 
 
 void RayHandler::restoreSystem() {
 
     auto &receivers = graph->getReceivers();
 
-    for (Node *receiver : receivers ){
+    for (Node *receiver: receivers) {
         receiver->clearRays();
     }
     auto &allNodes = graph->getAllNodes();
 
-    for (Node &node : allNodes){
+    for (Node &node: allNodes) {
         node.setActive(false);
     }
 
 }
 
-SystemState RayHandler::propagateRandom() {
 
-    modeHandler.activateRandomModes(systemState);
-    std::vector<Ray> currentRaysCopy = graph->getInputRays();
-    std::vector<Ray> currentRays = currentRaysCopy;
+SystemState RayHandler::propagateGivenModes(const vector<pair<int, int>> &modeList) {
 
-    while (!currentRays.empty()) {
-
-        for (Ray &ray: currentRays) {
-
-            reflectRay(ray);
-        }
-
-        currentRays.clear();
-        currentRays = newRays;
-        newRays.clear();
-    }
-
-    estimateSignal();
-    restoreSystem();
-
-    SystemState output = std::move(systemState);
-    systemState = SystemState();
-    return output;
-
-}
-
-SystemState RayHandler::propagateGivenModes(const vector<pair<int,int>> &modeList) {
-
-    for (pair pair : modeList){
+    for (pair pair: modeList) {
         Node &node = graph->getNode(pair.first);
         node.setActiveMode(pair.second);
         node.setActive(true);

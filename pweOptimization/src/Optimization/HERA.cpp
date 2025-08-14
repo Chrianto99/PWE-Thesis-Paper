@@ -6,7 +6,7 @@
 void HERA::run() {
     using namespace std::chrono;
 
-    int currentNumCycles = 0;
+    int currentNumCycles = algorithm->numGenerations;
     int stagnationCounter = 0;
 
     while (currentNumCycles < algorithm->numGenerations + 1) {
@@ -15,7 +15,7 @@ void HERA::run() {
         int i = 0;
         while (i < algorithm->genSize) {
             SystemState systemState = algorithm->rayHandler.propagate();
-            if (systemState.getServiceRate() < 0.25) continue;
+            if (systemState.getServiceRate() == 0) continue;
 
             solutions.emplace_back(systemState);
             i++;
@@ -36,19 +36,11 @@ void HERA::run() {
             algorithm->output[algorithm->genSize * currentNumCycles] = algorithm->paretoArchive;
         }
 
-
         // Step 6: Update pheromones
         updateDistributions(solutions);
 
         currentNumCycles++;
 
-        // Step 6 (Optional) : Apply Local Search
-        if (stagnationCounter > 5){
-
-
-
-            return;
-        }
     }
 }
 

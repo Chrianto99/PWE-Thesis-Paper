@@ -10,18 +10,13 @@
 void RBAS::run() {
     using namespace std::chrono;
 
-    int& currentNumCycles = algorithm->currentNumCycles;
+    int &currentNumCycles = algorithm->currentNumCycles;
     int stagnationCounter = 0;
     while (currentNumCycles < algorithm->numGenerations + 1) {
-        vector<Solution> ants;
-        int i = 0;
-        while (i < algorithm->genSize) {
-            SystemState systemState = algorithm->rayHandler.propagate();
-            if (systemState.getServiceRate() < 0.25) continue;
 
-            ants.emplace_back(systemState);
-            i++;
-        }
+        // Step 1: Send ants to construct solutions
+        ants.clear();
+        sendAnts();
 
         // Step 2: Fast non-dominated sorting
         set<Solution> firstFront = ParetoHandler::fastNonDominatedSorting(ants);
@@ -38,18 +33,9 @@ void RBAS::run() {
             algorithm->output[currentNumCycles] = algorithm->paretoArchive;
         }
 
-        // Step 6 (Optional) : Apply Local Search
-        if (algorithm->localSearch){
 
-            if (static_cast<double>(currentNumCycles) / algorithm->numGenerations > 0.8) algorithm->numLocalSearches = 1;
-
-            LocalSearch::applyLocalSearch(*algorithm);
-            algorithm->localSearches.push_back(currentNumCycles);
-
-        }
-
-        if (stagnationCounter > 10){
-            NSGAII nsga = NSGAII(*algorithm, 0.5,0.03);
+        if (stagnationCounter > 10) {
+            NSGAII nsga = NSGAII(*algorithm, 0.03);
             nsga.inputInitialPopulation(algorithm->paretoArchive);
             nsga.run();
         }
@@ -62,17 +48,17 @@ void RBAS::run() {
 }
 
 
-void RBAS::runBruteForce(){
+void RBAS::runBruteForce() {
     int currentNumCycles = 0;
     set<Solution> firstFront;
-    while (currentNumCycles < algorithm->numGenerations){
+    while (currentNumCycles < algorithm->numGenerations) {
 
         vector<Solution> ants;
 
         int i = 0;
         while (i < algorithm->genSize) {
             SystemState systemState = algorithm->rayHandler.propagate();
-            if (systemState.getServiceRate() < 0.25) continue;
+            if (systemState.getServiceRate() == 0) continue;
 
             ants.emplace_back(systemState);
             i++;
@@ -91,28 +77,40 @@ void RBAS::runBruteForce(){
         currentNumCycles++;
 
 
-
     }
 
 }
 
 void RBAS::updatePheromones(vector<Solution> &ants) {
 
-    for (int i = 0; i < algorithm->graph->getNumTiles(); ++i){
-        for (int j = 0; j < algorithm->graph->getNumModes(i); ++j){
-            modeHandler->multiplyLikelihood(i, j, evaporationRate);
+    //Pheromone Evaporation
+    for (int i = 0; i < algorithm->graph->getNumTiles(); ++i) {
+        for (int j = 0; j < algorithm->graph->getNumModes(i); ++j) {
+            modeHandler->scaleModeLikelihood(pair<int, int>(i, j), evaporationRate);
         }
     }
-    double alpha = 0.5;
-    for (auto &ant : ants){
+    //Pheromone reward (takes in to account both crowding distance and rank)
+    for (auto &ant: ants) {
+
         if (ant.getCrowdingDistance() == std::numeric_limits<double>::infinity()) ant.setCrowdingDistance(1);
-        double pheromoneAmount = (exp(-alpha * ant.getFrontRank()) + ant.getCrowdingDistance());
-        modeHandler->modifyModeLikelihood(ant.getModeList(),pheromoneAmount);
+
+        double pheromoneAmount = intensityFactor * (exp(-alpha * ant.getFrontRank()) + ant.getCrowdingDistance());
+
+        for (auto &pair: ant.getModeList()) modeHandler->increaseModeLikelihood(pair, pheromoneAmount);
     }
 
     modeHandler->aliasMethod();
 
 
+}
 
+void RBAS::sendAnts() {
+    int i = 0;
+    while (i < algorithm->genSize) {
+        SystemState systemState = algorithm->rayHandler.propagate();
+        if (systemState.getServiceRate() == 0) continue;
 
+        ants.emplace_back(systemState);
+        i++;
+    }
 }
