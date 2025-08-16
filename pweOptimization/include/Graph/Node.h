@@ -21,9 +21,8 @@ class Node {
 private:
     int id;
     int activeMode;
-    bool active, blocked;
+    bool active;
     int numberOfModes;
-    unordered_map<string, vector<double>> routingTable;
     string type;
     vector<Ray> rays;
 
@@ -58,10 +57,6 @@ public:
 
     void clearRays() { rays.clear(); }
 
-    const vector<double> &getDistFromRoutingTable(string &key) {
-        return routingTable.at(key);
-    }
-
     bool hasNoRays() { return rays.empty(); }
 
     bool hasOneRay() { return rays.size() == 1; }
@@ -73,7 +68,6 @@ public:
         j = {
                 {"id",            n.id},
                 {"numberOfModes", n.numberOfModes},
-                {"routingTable",  n.routingTable},
                 {"type",          n.type},
         };
     }
@@ -81,7 +75,6 @@ public:
     friend void from_json(const nlohmann::json &j, Node &n) {
         j.at("id").get_to(n.id);
         j.at("numberOfModes").get_to(n.numberOfModes);
-        j.at("routingTable").get_to(n.routingTable);
         j.at("type").get_to(n.type);
 
     }

@@ -14,7 +14,7 @@
 #include "LocalSearch.h"
 #include "Algorithm.h"
 #include "NSGA-II.h"
-
+#pragma once
 using namespace std;
 
 class RBAS {
@@ -23,8 +23,7 @@ private:
     Algorithm *algorithm;
     ModeHandler *modeHandler;
     double evaporationRate;
-    double intensityFactor;
-    // reward multiplier
+    double intensityFactor; // reward multiplier
     double alpha; // [0,1] defines relational rewarding between front ranks (large alpha --> elitism)
     vector<Solution> ants;
 public:

@@ -34,6 +34,7 @@ public:
         threshold = pow(10,-12);
 
     }
+    ModeHandler &getModeHandler()  { return modeHandler; }
 
     // Emulates system propagation , picking modes according to distribution
     // Distribution defaults to uniform
@@ -48,11 +49,6 @@ public:
     void estimateSignal();
 
     void restoreSystem();
-
-    ModeHandler &getModeHandler()  {
-        return modeHandler;
-    }
-
 
 };
 

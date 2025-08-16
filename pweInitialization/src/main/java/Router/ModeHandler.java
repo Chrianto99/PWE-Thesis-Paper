@@ -56,8 +56,11 @@ public class ModeHandler {
 
             String key = inputEdge.getId() + " " + i;
 
-            tile.addKvpToRoutingTable(key,distributionManager.getDistribution());
+            Double[] distribution = Arrays.stream(distributionManager.getDistribution())
+                    .boxed()
+                    .toArray(Double[]::new);
 
+            g.addEntryToRoutingTable(String.valueOf(tile.getId()), key, distribution);
 
         }
 

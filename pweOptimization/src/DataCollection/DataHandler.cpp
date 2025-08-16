@@ -11,8 +11,6 @@ DataHandler::returnData(const map<int, vector<Solution>> &output, const vector<s
 
     createFronts(output, objectiveLabels);
 
-    calculateHyperVolumes(data.getFronts());
-
     return data;
 
 }
@@ -42,57 +40,78 @@ DataHandler::createFronts(const map<int, vector<Solution>> &output, const vector
     return extractedFronts;
 }
 
-void DataHandler::calculateHyperVolumes(const map<int, vector<vector<double>>> &fronts) {
-    map<int, double> hyperVolumes;
-    vector<double> referencePoint = computeReferencePoint(fronts, 10e-12);
+void DataHandler::runSimulation(string algorithm,double intensityFactor, double evaporationRate, double alpha, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations,
+                                int numRepetitions, int *roomDims) {
+    auto* g = new Graph();
 
-    for (const auto &[frontRank, points]: fronts) {
-        double hv = 0.0;
+    string roomPath = "Graphs_" + to_string(roomDims[0]) + "x" + to_string(roomDims[1])
+                      + "x" + to_string(roomDims[2]);
 
-        // Sort the front by the first objective (ascending)
-        vector<vector<double>> sortedPoints = points;
-        sort(sortedPoints.begin(), sortedPoints.end(), [](const vector<double> &a, const vector<double> &b) {
-            return a[0] < b[0];
-        });
+    for (int graphID = 0; graphID < numGraphs; graphID++) {
 
-        double prevObj1 = referencePoint[0];
-        for (const auto &p: sortedPoints) {
-            double width = prevObj1 - p[0];
-            double height = referencePoint[1] - p[1];
-            if (width > 0 && height > 0)
-                hv += width * height;
-            prevObj1 = p[0];
-        }
+        cout << "graph:" << graphID << endl;
+        string graphPath = roomPath + "/Rx_" + to_string(numUsers) +
+                           "/Tiles_" + to_string(numTiles) +
+                           "/Graph_" + to_string(graphID) + ".json";
 
-        hyperVolumes[frontRank] = hv;
-    }
+        g->loadGraph(graphPath, *g);
 
-    data.setHyperVolumes(hyperVolumes);
-}
+        auto start = std::chrono::high_resolution_clock::now();
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = duration_cast<std::chrono::milliseconds>(end - start);
+        auto durationPerPropagation = duration.count() / 100;
 
-vector<double> DataHandler::computeReferencePoint(const map<int, vector<vector<double>>> &fronts, double epsilon) {
-    if (fronts.empty()) {
-        throw std::invalid_argument("Fronts map is empty");
-    }
+        start = std::chrono::high_resolution_clock::now();
+        map<int, set<Solution>> currentOutput;
 
-    // Determine the number of objectives (dimensions)
-    int numObjectives = fronts.begin()->second.front().size();
-    vector<double> reference(numObjectives, -std::numeric_limits<double>::infinity());
+        for (int i = 0; i < numRepetitions; ++i) {
 
-    for (const auto &[repMark, front]: fronts) {
-        for (const auto &point: front) {
-            for (int i = 0; i < numObjectives; ++i) {
-                reference[i] = max(reference[i], point[i]);
+            Algorithm alg = Algorithm(*g,numTiles * 1.5, numGenerations, localSearch);
+
+            if (algorithm == "NSGAII") {
+                NSGAII nsgaii = NSGAII(alg, 0.03);
+                nsgaii.run();
+                ParetoHandler::mergeOutputs(currentOutput, alg.output);
             }
+            else if (algorithm == "RBAS"){
+                RBAS rbas = RBAS(alg, evaporationRate, intensityFactor, alpha);
+                rbas.run();
+                ParetoHandler::mergeOutputs(currentOutput, alg.output);
+            }
+            else if (algorithm == "BruteForce"){
+                RBAS rbas = RBAS(alg, 0, 0, 0);
+                rbas.runBruteForce();
+                ParetoHandler::mergeOutputs(currentOutput, alg.output);
+
+            }
+
+
         }
+        end = std::chrono::high_resolution_clock::now();
+        duration = duration_cast<std::chrono::milliseconds>(end - start);
+        durationPerPropagation = duration.count() / numRepetitions;
+        cout << "Time taken: " << durationPerPropagation << " ms" << endl;
+
+        DataHandler dataHandler = DataHandler();
+
+        map<int, vector<Solution>> convertedOutput;
+
+        for (const auto &[key, solutionSet]: currentOutput) {
+            // Convert each set to a vector
+            convertedOutput[key] = vector<Solution>(solutionSet.begin(), solutionSet.end());
+        }
+
+        data = dataHandler.returnData(convertedOutput,
+                                                      vector<string>{"averageDelaySpread", "averagePower"});
+        string writePath;
+        if (localSearch) writePath = roomPath + "/results/" + algorithm + "-NSGAII-LS";
+
+        else writePath = roomPath + "/results/" + algorithm;
+
+        data.writeToJson(writePath, graphID, numTiles, numUsers);
     }
 
-    // Add epsilon to each dimension
-    for (double &val: reference) {
-        val += epsilon;
-    }
 
-    return reference;
 }
 
 

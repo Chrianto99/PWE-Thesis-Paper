@@ -72,11 +72,11 @@ def plot_grid(graph_names):
             style = algorithm_styles.get(algo, {"color": "black", "marker": "x"})  # fallback
             ax.plot(x, y, 
             label=algo,
-         
+            marker=style["marker"],
             color=style["color"],
             markersize=3,
             linewidth=1,
-            alpha=1)
+            alpha=0.3)
 
             ax.set_title(graph_name)
             ax.set_xlabel("Objective 1")

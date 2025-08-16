@@ -10,6 +10,9 @@
 #include "Optimization/Solution.h"
 #include "AlgorithmOutput.h"
 #include "set"
+#include "Optimization/Algorithm.h"
+#include "Optimization/RBAS.h"
+#include "Optimization/NSGA-II.h"
 
 class DataHandler {
 
@@ -26,9 +29,8 @@ public:
     map<int, vector<vector<double>>>
     createFronts(const map<int, vector<Solution>> &output, const vector<string> &objectiveLabels);
 
-    void calculateHyperVolumes(const map<int, vector<vector<double>>> &fronts);
+    void runSimulation(string algorithm, double intensityFactor, double evaporationRate, double alpha, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations, int numRepetitions ,int roomDims[3]);
 
-    vector<double> computeReferencePoint(const map<int, vector<vector<double>>> &fronts, double epsilon);
 
 
 };

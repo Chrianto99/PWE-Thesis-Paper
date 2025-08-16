@@ -17,7 +17,7 @@ public class Main {
         double wavelength = c / frequency;
 
         // Create Room
-        double[] roomDims = new double[]{15, 10, 5}; // Room dimensions x,y,z
+        double[] roomDims = new double[]{10, 6, 4}; // Room dimensions x,y,z
         int numSpheres = 5;
         double pathLossExponent = 2;
         RoomHandler roomHandler = new RoomHandler(); // Handles room creation (walls and obstacles)
@@ -33,7 +33,7 @@ public class Main {
         //Set SDM Parameters
         TileConfig tileConfig = new TileConfig(40, wavelength / 10, 4, wavelength);
 
-        int[] numberOfTilesVector = {16,32,64};
+        int[] numberOfTilesVector = {8,16,32};
         int[] numReceiversVector = {2,4};
 
         int numberOfGraphs = 100;

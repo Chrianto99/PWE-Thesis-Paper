@@ -25,7 +25,7 @@ void NSGAII::run() {
         }
 
         // Generate offspring
-        vector<Solution> offspringList = generateOffspring(population); //parallelize
+        vector<Solution> offspringList = generateOffspring(); //parallelize
         vector<Solution> offspring(offspringList.begin(), offspringList.end());
 
         // Insert offspring into population
@@ -51,7 +51,7 @@ void NSGAII::run() {
         }
 
         // Select next generation
-        population = selectNextGeneration(population); //parallelize
+        population = selectNextGeneration(); //parallelize
 
         genCount++;
     }
@@ -89,13 +89,13 @@ vector<Solution> NSGAII::inputInitialPopulation(set<Solution> &inputPopulation) 
 
         ParetoHandler::updateParetoArchive(algorithm->paretoArchive, firstFront);
 
-        vector<Solution> offspring = generateOffspring(population);
+        vector<Solution> offspring = generateOffspring();
 
         population.insert(population.end(), offspring.begin(), offspring.end());
 
     }
 
-    if (population.size() > algorithm->genSize) selectNextGeneration(population);
+    if (population.size() > algorithm->genSize) selectNextGeneration();
 
     return population;
 }
@@ -107,8 +107,8 @@ vector<Solution> NSGAII::generateOffspring() {
 
     while (offspring.size() < popSize) {
         // Select parents using tournament selection
-        Solution &parent1 = tournamentSelection(population);
-        Solution &parent2 = tournamentSelection(population);
+        Solution &parent1 = tournamentSelection();
+        Solution &parent2 = tournamentSelection();
 
         Solution child;
         while (child.getModeList().empty()) {

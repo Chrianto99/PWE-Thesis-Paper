@@ -40,7 +40,6 @@ add_executable(pweOptimization
         src/Optimization/ParetoHandler.cpp
         include/Optimization/RBAS.h
         src/Optimization/RBAS.cpp
-        include/Optimization/HyperVolumeCalculator.h
         include/DataCollection/AlgorithmOutput.h
         include/DataCollection/DataHandler.h
         src/DataCollection/DataHandler.cpp

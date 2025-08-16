@@ -45,8 +45,8 @@ void RayHandler::reflectRay(Ray &ray) {
     }
 
     string key = to_string(currentEdge.getId()) + " " + to_string(currentNode.getActiveMode());
-
-    const vector<double> &outputDist = currentNode.getDistFromRoutingTable(key);
+    string tile_id_string = to_string(currentNode.getId());
+    const vector<double> &outputDist = graph->getDistribution(tile_id_string, key);
 
     for (const double &value: outputDist) {
         int outputEdgeId = (int) floor(value);

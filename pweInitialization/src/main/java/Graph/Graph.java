@@ -7,7 +7,6 @@ import Node.*;
 import Propagation.RadiationHandler;
 import Propagation.Ray;
 import RoomGeometry.Room;
-import RoomGeometry.RoomHandler;
 import Router.*;
 
 public class Graph {
@@ -15,6 +14,7 @@ public class Graph {
     public List<Edge> allEdges = new ArrayList<>();
     public List<Node> allNodes = new ArrayList<>();
     public List<Ray> inputRays = new ArrayList<>();
+    public Hashtable<String, Hashtable<String,Double[]>> routingTables = new Hashtable<>();
     public TxConfig txConfig;
     public TileConfig tileConfig;
     public Room room;
@@ -60,6 +60,15 @@ public class Graph {
         modeHandler.initializeRoutingTables();
 
 
+    }
+
+    public void addEntryToRoutingTable(String tiledId, String key, Double[] distribution){
+        if (routingTables.containsKey(tiledId)) {
+            routingTables.get(tiledId).put(key,distribution);
+        }
+        else {
+            routingTables.put(tiledId, new Hashtable<>());
+        }
     }
 
     public boolean areOnSameWall(Node node1, Node node2) {

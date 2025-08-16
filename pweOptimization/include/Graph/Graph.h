@@ -26,6 +26,7 @@ private:
     vector<Node> allNodes;
     vector<Edge> allEdges;
     vector<Ray> inputRays;
+    unordered_map<string, unordered_map<string, vector<double>>> routingTables;
 
     TxConfig txConfig;
     TileConfig tileConfig;
@@ -44,8 +45,6 @@ public:
 
     [[nodiscard]] const vector<Ray> &getInputRays() const noexcept { return inputRays; }
 
-    [[nodiscard]] const Room &getRoom() const noexcept { return room; }
-
     [[nodiscard]] vector<Node *> &getReceivers() { return receivers; }
 
     [[nodiscard]] vector<Node *> &getTiles() { return tiles; }
@@ -54,15 +53,18 @@ public:
 
     [[nodiscard]] int getNumModes(int tileId) { return allNodes[tileId].getNumModes(); }
 
+    [[nodiscard]] vector<double> &getDistribution(string &tileId, string &key) { return routingTables[tileId][key]; }
+
 
     friend void to_json(nlohmann::json &j, const Graph &g) {
         j = {
-                {"allNodes",   g.allNodes},
-                {"allEdges",   g.allEdges},
-                {"inputRays",  g.inputRays},
-                {"txConfig",   g.txConfig},
+                {"allNodes", g.allNodes},
+                {"allEdges", g.allEdges},
+                {"inputRays", g.inputRays},
+                {"routingTables", g.routingTables},
+                {"txConfig", g.txConfig},
                 {"tileConfig", g.tileConfig},
-                {"room",       g.room}
+                {"room", g.room}
                 // Note: receivers and tiles are omitted
         };
     }
@@ -71,10 +73,10 @@ public:
         j.at("allNodes").get_to(g.allNodes);
         j.at("allEdges").get_to(g.allEdges);
         j.at("inputRays").get_to(g.inputRays);
+        j.at("routingTables").get_to(g.routingTables);
         j.at("txConfig").get_to(g.txConfig);
         j.at("tileConfig").get_to(g.tileConfig);
         j.at("room").get_to(g.room);
-        // You will need to resolve and set `receivers` and `tiles` manually after loading
     }
 
     void loadGraph(string path, Graph &g) {

@@ -11,32 +11,19 @@ public class Node {
     protected String type;
     private double[] position;
     private boolean blocked;
-    private Hashtable<String,double[]> routingTable;
+    //private Hashtable<String, double[]> routingTable;
     private int numberOfModes;
 
     protected transient ArrayList<Edge> inputEdges;
     protected transient ArrayList<Edge> outputEdges;
 
-    public Node() {
-
-    }
+    public Node() {}
 
     public Node(String type) {
         this.type = type;
         inputEdges = new ArrayList<>();
         outputEdges = new ArrayList<>();
-        routingTable = new Hashtable<>();
-
-    }
-
-    public void setBlocked(){
-        blocked = true;
-    }
-
-    public void addKvpToRoutingTable(String key, double[] dist){
-
-        routingTable.put(key,dist);
-
+        //routingTable = new Hashtable<>();
     }
 
     public int getId() {
@@ -51,10 +38,7 @@ public class Node {
         return type;
     }
 
-    public void setPosition(double[] position) {
-        this.position = position;
-
-    }
+    public void setPosition(double[] position) { this.position = position; }
 
     public double[] getPosition() {
         return position;
@@ -64,10 +48,6 @@ public class Node {
         this.numberOfModes = numberOfModes;
     }
 
-//    public void setrTableIndex(int rTableIndex) {
-//        this.rTableIndex = rTableIndex;
-//    }
-
     public ArrayList<Edge> getInputEdges() {
         return inputEdges;
     }
@@ -76,9 +56,9 @@ public class Node {
         return outputEdges;
     }
 
-    public void addToInputEdges(Edge edge){inputEdges.add(edge);}
+    public void addToInputEdges(Edge edge) { inputEdges.add(edge); }
 
-    public void addToOutputEdges(Edge edge){outputEdges.add(edge);}
+    public void addToOutputEdges(Edge edge) { outputEdges.add(edge); }
 
 
 }
