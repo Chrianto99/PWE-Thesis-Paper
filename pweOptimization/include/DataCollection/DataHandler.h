@@ -19,17 +19,30 @@ class DataHandler {
 private:
 
     AlgorithmOutput data;
+    double intensityFactor, evaporationRate, alpha;
+    double mutationChance;
 
 public:
 
     DataHandler() = default;
+
+    void setMOACOParams(double intensityFactor, double evaporationRate, double alpha){
+        this->intensityFactor = intensityFactor;
+        this->evaporationRate = evaporationRate;
+        this->alpha = alpha;
+    }
+
+    void setNSGAParams(double mutationChance){
+        this->mutationChance = mutationChance;
+    }
+
 
     AlgorithmOutput returnData(const map<int, vector<Solution>> &output, const vector<string> &objectiveLabels);
 
     map<int, vector<vector<double>>>
     createFronts(const map<int, vector<Solution>> &output, const vector<string> &objectiveLabels);
 
-    void runSimulation(string algorithm, double intensityFactor, double evaporationRate, double alpha, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations, int numRepetitions ,int roomDims[3]);
+    void runSimulation(string algorithm, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations, int numRepetitions ,int roomDims[3]);
 
 
 

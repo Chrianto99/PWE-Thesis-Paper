@@ -40,7 +40,7 @@ DataHandler::createFronts(const map<int, vector<Solution>> &output, const vector
     return extractedFronts;
 }
 
-void DataHandler::runSimulation(string algorithm,double intensityFactor, double evaporationRate, double alpha, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations,
+void DataHandler::runSimulation(string algorithm, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations,
                                 int numRepetitions, int *roomDims) {
     auto* g = new Graph();
 
@@ -69,7 +69,7 @@ void DataHandler::runSimulation(string algorithm,double intensityFactor, double 
             Algorithm alg = Algorithm(*g,numTiles * 1.5, numGenerations, localSearch);
 
             if (algorithm == "NSGAII") {
-                NSGAII nsgaii = NSGAII(alg, 0.03);
+                NSGAII nsgaii = NSGAII(alg, mutationChance);
                 nsgaii.run();
                 ParetoHandler::mergeOutputs(currentOutput, alg.output);
             }

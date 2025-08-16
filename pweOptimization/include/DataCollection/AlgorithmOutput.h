@@ -9,6 +9,7 @@
 #include "Optimization/Solution.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include "Optimization/Algorithm.h"
 
 
 using namespace std;
@@ -18,8 +19,8 @@ class AlgorithmOutput {
 private:
     map<int, vector<Solution>> output;
     map<int, vector<vector<double>>> fronts;
-    map<int, double> hyperVolumes;
     vector<string> objectiveLabels;
+    double averageTimePerRunMs;
 
 public:
     AlgorithmOutput() = default;
@@ -32,11 +33,6 @@ public:
     void setFronts(const map<int, vector<vector<double>>> &fronts) {
         this->fronts = fronts;
     }
-
-    void setHyperVolumes(const map<int, double> &hyperVolumes) {
-        this->hyperVolumes = hyperVolumes;
-    }
-
 
     [[nodiscard]] const map<int, vector<vector<double>>> &getFronts() const {
         return fronts;
@@ -74,7 +70,7 @@ public:
 
         // Save the fronts and hypervolumes
         j["fronts"] = fronts;
-        j["hyperVolumes"] = hyperVolumes;
+        j["averageTimePerRunMs"] = averageTimePerRunMs;
 
         // Write to file
         std::ofstream outFile(filePath);

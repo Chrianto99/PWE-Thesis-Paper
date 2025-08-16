@@ -103,13 +103,13 @@ public:
 
         }
 
-        // DEBUG: Write back to a new file
-        std::ofstream out("test_output.json");
-        if (out) {
-            json j_out = g;  // Assumes to_json is defined
-            out << j_out.dump(4);  // Pretty print with 4-space indent
-            std::cout << "Graph written back to test_output.json\n";
-        }
+//        // DEBUG: Write back to a new file
+//        std::ofstream out("test_output.json");
+//        if (out) {
+//            json j_out = g;  // Assumes to_json is defined
+//            out << j_out.dump(4);  // Pretty print with 4-space indent
+//            std::cout << "Graph written back to test_output.json\n";
+//        }
 
 
     }

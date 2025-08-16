@@ -11,6 +11,8 @@
 #include "Propagation/RayHandler.h"
 #include "Solution.h"
 #include "set"
+#include <nlohmann/json.hpp>
+
 
 #pragma once
 
@@ -40,5 +42,7 @@ public:
         currentNumCycles = 0;
         numLocalSearches = 0;
     }
+
+
 
 };
