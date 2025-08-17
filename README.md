@@ -10,10 +10,10 @@ This software models a **graph-based EM propagation system** using **Software De
 
 ---
 
-###Dependancies:
-Java: Gson, GsonBuilder
-Cpp: nlohmann/json 
-Python:os, json, matplotlib, numpy, pymoo
+### Dependancies:
+- **Java**: Gson, GsonBuilder
+- **Cpp**: nlohmann/json 
+- **Python** :os, json, matplotlib, numpy, pymoo
 
 
 ## 🔧 Components
