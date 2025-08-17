@@ -11,7 +11,6 @@ public class Node {
     protected String type;
     private double[] position;
     private boolean blocked;
-    //private Hashtable<String, double[]> routingTable;
     private int numberOfModes;
 
     protected transient ArrayList<Edge> inputEdges;

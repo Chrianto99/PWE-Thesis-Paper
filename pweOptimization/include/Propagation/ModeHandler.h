@@ -55,23 +55,9 @@ public:
 
     }
 
-    [[nodiscard]] const std::vector<std::vector<double>> &getTileDistributions() const { return tileDistributions; }
-
-    [[nodiscard]] const std::vector<std::vector<double>> &getProbabilities() const { return probabilities; }
-
-    [[nodiscard]] const std::vector<std::vector<int>> &getAliases() const { return aliases; }
-
-    [[nodiscard]] std::mt19937 &getRandGen() { return randGen; } // Non-const (modifiable)
-
-    void multiplyLikelihood(int nodeId, int modeId, double value) {
-        tileDistributions[nodeId][modeId] *= value;
-    }
-
     void aliasMethod();
 
     int chooseMode(int tileId);
-
-    void activateRandomModes(SystemState &systemState);
 
     void modifyModeLikelihood(vector<pair<int, int>> &modeList, double amount);
 

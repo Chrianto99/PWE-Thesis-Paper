@@ -2,8 +2,6 @@
 // Created by Christos on 6/19/2025.
 //
 #include "Optimization/RBAS.h"
-
-
 #include <chrono>
 #include <iostream>
 
@@ -32,7 +30,6 @@ void RBAS::run() {
         if (ParetoHandler::checkRepetitionMarks(algorithm->genSize * currentNumCycles, algorithm->genSize)) {
             algorithm->output[currentNumCycles] = algorithm->paretoArchive;
         }
-
 
         if (stagnationCounter > 10) {
             NSGAII nsga = NSGAII(*algorithm, 0.03);

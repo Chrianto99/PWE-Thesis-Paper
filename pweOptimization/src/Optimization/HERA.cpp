@@ -47,7 +47,7 @@ void HERA::run() {
 
 void HERA::updateDistributions(vector<Solution> &solutions) {
 
-    double alpha = 0.5;
+    double alpha = 1;
     for (auto &sol : solutions){
         if (sol.getCrowdingDistance() == std::numeric_limits<double>::infinity()) sol.setCrowdingDistance(1);
         double pheromoneAmount = intensityFactor * (exp(-alpha * sol.getFrontRank()) + sol.getCrowdingDistance());
