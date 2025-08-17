@@ -16,7 +16,7 @@ This software models a **graph-based EM propagation system** using **Software De
 - **Purpose**: Generates the simulation environment and network graph.
 - **Functions**:
   - Randomly places SDMs, transmitters, and receivers on walls and ceiling.
-  - Adds obstacles that block specific signal paths (using normal vectors).
+  - Adds obstacles (spheres) that block specific signal paths.
   - Computes far-field EM propagation paths between all elements.
   - Simulates **SDM steering and diffusion functions**.
   - Builds and exports **routing tables** for all SDMs.
@@ -35,4 +35,67 @@ This software models a **graph-based EM propagation system** using **Software De
     - **Genetic Algorithm**
   - Optimizes based on **Pareto conditions** for:
     - **Power efficiency**
-    - **Delay spread**
+    - **Minimum delay spread**
+
+---
+
+## 🏁 Simulation Pipeline
+
+### Step 1: Run the Java Initializer
+- **Purpose**: Creates the simulation environment and exports system graphs as JSON for the optimizer.
+- **Steps**:
+  1. Open and run `pwInitialization`.
+  2. Inside `main()`, configure:
+     - Room dimensions
+     - Obstacles (spheres)
+     - Number of SDMs (tiles)
+     - Number of receivers
+     - Transmitter configuration
+     - Tile configuration
+     - Number of graphs
+- **Example (Java)**:
+```java
+double[] roomDims = new double[]{10, 6, 4};
+int numSpheres = 5;
+double pathLossExponent = 2;
+
+RoomHandler roomHandler = new RoomHandler();
+roomHandler.createCuboidRoom(roomDims);
+roomHandler.addSpheres(numSpheres);
+
+Room cuboidRoom = roomHandler.getRoom();
+cuboidRoom.setAlpha(pathLossExponent);
+
+TxConfig txConfig = new TxConfig(1600, 1, 0, wavelength);
+TileConfig tileConfig = new TileConfig(40, wavelength / 10, 4, wavelength);
+
+int[] numberOfTilesVector = {8, 16, 32};
+int[] numReceiversVector = {2, 4};
+int numberOfGraphs = 100;
+
+### Step 2: Run the C++ Optimizer
+- **Purpose**: Simulates EM propagation and performs multi-objective optimization.
+- **Steps**:
+  1. Open the C++ project.
+  2. Run the optimizer using the `runSimulation()` function.
+- **Example (C++)**:
+```cpp
+int roomDims[3] = {10, 6, 4};
+DataHandler dataHandler = DataHandler();
+
+dataHandler.setMOACOParams(2, 0.9, 0.7);
+dataHandler.setNSGAParams(0.03);
+
+dataHandler.runSimulation({
+    "RBAS",     // Algorithm: "RBAS", "MOACO", "NSGA", "HERA"
+    false,      // Local search flag
+    16,         // Number of tiles
+    4,          // Number of users
+    100,        // Number of graphs
+    50,         // Number of generations
+    100,        // Number of repetitions
+    roomDims    // Room dimensions
+});
+
+
+
