@@ -72,6 +72,7 @@ TileConfig tileConfig = new TileConfig(40, wavelength / 10, 4, wavelength);
 int[] numberOfTilesVector = {8, 16, 32};
 int[] numReceiversVector = {2, 4};
 int numberOfGraphs = 100;
+```
 
 ### Step 2: Run the C++ Optimizer
 - **Purpose**: Simulates EM propagation and performs multi-objective optimization.
@@ -96,6 +97,7 @@ dataHandler.runSimulation({
     100,        // Number of repetitions
     roomDims    // Room dimensions
 });
+```
 
 ### Step 3: Analyze Results with Python
 - **Purpose**: Post-process simulation outputs.
