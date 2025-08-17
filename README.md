@@ -97,5 +97,13 @@ dataHandler.runSimulation({
     roomDims    // Room dimensions
 });
 
+### Step 3: Analyze Results with Python
+- **Purpose**: Post-process simulation outputs.
+- **Scripts**:
+  1. **Visualize Pareto fronts**:
+  2. **Calculate Hypervolume
+They exist in data folder of the project. Input desired graph data and algorithms to be compared and run them 
+to visualize data
+
 
 
