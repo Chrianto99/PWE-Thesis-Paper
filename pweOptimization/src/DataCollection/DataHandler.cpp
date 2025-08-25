@@ -84,6 +84,11 @@ void DataHandler::runSimulation(string algorithm, bool localSearch, int numTiles
                 ParetoHandler::mergeOutputs(currentOutput, alg.output);
 
             }
+            else if (algorithm == "HERA"){
+                HERA hera = HERA(alg, alpha, slope, N);
+                hera.run();
+                ParetoHandler::mergeOutputs(currentOutput, alg.output);
+            }
 
 
         }

@@ -19,10 +19,11 @@ int main() {
 
     DataHandler dataHandler = DataHandler();
 
-    dataHandler.setMOACOParams(2, 0.9, 0.7);
+    dataHandler.setHERAParameters(1, 0.7, 100);
+    dataHandler.setMOACOParams(1, 0.9, 0.7);
     dataHandler.setNSGAParams(0.03);
 
-    dataHandler.runSimulation("RBAS",
+    dataHandler.runSimulation("BruteForce",
                               false,
                               16,
                               4,
@@ -30,6 +31,7 @@ int main() {
                               50,
                               100,
                               roomDims);
+
 
 
 }

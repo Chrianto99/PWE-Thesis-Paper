@@ -13,19 +13,29 @@
 #include "LocalSearch.h"
 
 class HERA{
-
+private:
     Algorithm* algorithm;
     ModeHandler* modeHandler;
-    double intensityFactor;
+    double slope, alpha;
+    int N;
 
-    HERA(Algorithm& algorithm, double intensityFactor):
+public:
+    HERA(Algorithm& algorithm,double alpha, double slope, int N):
     algorithm(&algorithm),
     modeHandler(&algorithm.rayHandler.getModeHandler()),
-    intensityFactor(intensityFactor){}
+    alpha(alpha),
+    slope(slope),
+    N(N)
+    {}
+
 
     void run();
 
-    void updateDistributions(vector<Solution> &solutions);
+    void exploitationPhase();
+
+    vector<Solution> sendSwarm(int num);
+
+    void updateDistributions(vector<Solution> &solution);
 
 
 };

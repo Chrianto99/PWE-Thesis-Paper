@@ -9,9 +9,7 @@ import com.google.gson.GsonBuilder;
 import Graph.Graph;
 
 public class JsonFileManager {
-
-
-	
+    
 	public void writeGraphToJson(Graph g,String name) {
 		
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();

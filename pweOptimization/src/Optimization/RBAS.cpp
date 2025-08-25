@@ -13,8 +13,7 @@ void RBAS::run() {
     while (currentNumCycles < algorithm->numGenerations + 1) {
 
         // Step 1: Send ants to construct solutions
-        ants.clear();
-        sendAnts();
+        vector<Solution> ants = sendAnts(algorithm->genSize);
 
         // Step 2: Fast non-dominated sorting
         set<Solution> firstFront = ParetoHandler::fastNonDominatedSorting(ants);
@@ -31,11 +30,11 @@ void RBAS::run() {
             algorithm->output[currentNumCycles] = algorithm->paretoArchive;
         }
 
-        if (stagnationCounter > 10) {
-            NSGAII nsga = NSGAII(*algorithm, 0.03);
-            nsga.inputInitialPopulation(algorithm->paretoArchive);
-            nsga.run();
-        }
+//        if (stagnationCounter > 10) {
+//            NSGAII nsga = NSGAII(*algorithm, 0.03);
+//            nsga.inputInitialPopulation(algorithm->paretoArchive);
+//            nsga.run();
+//        }
 
         // Step 7: Update pheromones
         updatePheromones(ants);
@@ -48,18 +47,9 @@ void RBAS::run() {
 void RBAS::runBruteForce() {
     int currentNumCycles = 0;
     set<Solution> firstFront;
-    while (currentNumCycles < algorithm->numGenerations) {
+    while (currentNumCycles < algorithm->numGenerations + 1) {
 
-        vector<Solution> ants;
-
-        int i = 0;
-        while (i < algorithm->genSize) {
-            SystemState systemState = algorithm->rayHandler.propagate();
-            if (systemState.getServiceRate() == 0) continue;
-
-            ants.emplace_back(systemState);
-            i++;
-        }
+        vector<Solution> ants = sendAnts(algorithm->genSize);
 
         firstFront = ParetoHandler::fastNonDominatedSorting(ants);
 
@@ -101,13 +91,16 @@ void RBAS::updatePheromones(vector<Solution> &ants) {
 
 }
 
-void RBAS::sendAnts() {
+vector<Solution> RBAS::sendAnts(int num) {
+
+    vector<Solution> ants;
     int i = 0;
-    while (i < algorithm->genSize) {
+    while (i < num) {
         SystemState systemState = algorithm->rayHandler.propagate();
         if (systemState.getServiceRate() == 0) continue;
 
         ants.emplace_back(systemState);
         i++;
     }
+    return ants;
 }

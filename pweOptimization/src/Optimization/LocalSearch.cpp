@@ -21,6 +21,7 @@ void LocalSearch::applyLocalSearch(Algorithm &algorithm) {
         numLocalSearchesDone++;
 
         if (improved == *it) {
+
             ++it; // no change, move to next
         } else {
             it = paretoArchive.erase(it);    // erase returns the next iterator

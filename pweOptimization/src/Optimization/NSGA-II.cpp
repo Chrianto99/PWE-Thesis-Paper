@@ -8,13 +8,17 @@
 void NSGAII::run() {
     using namespace std::chrono;
 
+
     auto t_start = high_resolution_clock::now();
     auto t_end = high_resolution_clock::now();
 
     // Time initial population creation
+    //cout << "Creating Initial Population" << endl;
+
     if (population.empty() || population.size() == 1) population = createInitialPopulation(); //parallelize
 
     int &genCount = algorithm->currentNumCycles;
+    int stagnationCounter = 0;
     while (genCount < algorithm->numGenerations + 1) {
 
         if (genCount == 0) {
@@ -25,25 +29,31 @@ void NSGAII::run() {
         }
 
         // Generate offspring
+        //cout << "Generating offspring" << endl;
         vector<Solution> offspringList = generateOffspring(); //parallelize
         vector<Solution> offspring(offspringList.begin(), offspringList.end());
 
         // Insert offspring into population
         population.insert(population.end(), offspring.begin(), offspring.end());
 
-        if (algorithm->localSearch){
+        if (algorithm->localSearch && stagnationCounter > 10){
             algorithm->numLocalSearches = 1;
             LocalSearch::applyLocalSearch(*algorithm, population);
         }
+        cout << "FNDS" << endl;
 
         // Fast non-dominated sorting
         set<Solution> firstFront = ParetoHandler::fastNonDominatedSorting(population); //parallelize
+        cout << "Calc CrowdingDIstance" << endl;
 
         // Crowding distance
         ParetoHandler::calculateCrowdingDistance(population); //parallelize
 
         // Update Pareto Archive
-        ParetoHandler::updateParetoArchive(algorithm->paretoArchive, firstFront); //parallelize
+        cout << "Updating ParetoArchive" << endl;
+
+        bool paretoUpdated = ParetoHandler::updateParetoArchive(algorithm->paretoArchive, firstFront); //parallelize
+        if (!paretoUpdated) stagnationCounter++;
 
         // Check repetition marks and store output
         if (ParetoHandler::checkRepetitionMarks(genCount * algorithm->genSize, algorithm->genSize)) {
@@ -51,6 +61,8 @@ void NSGAII::run() {
         }
 
         // Select next generation
+        cout << "Selecting Next Generation" << endl;
+
         population = selectNextGeneration(); //parallelize
 
         genCount++;

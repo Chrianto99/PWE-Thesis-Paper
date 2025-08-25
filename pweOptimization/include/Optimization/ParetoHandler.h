@@ -20,6 +20,9 @@ using namespace std;
 
 class ParetoHandler {
 
+private:
+    static const int PARETO_ARCHIVE_MAX_SIZE = 100;
+
 public:
 
     //Performs fast non dominated sorting (FNDS) in a set of solutions

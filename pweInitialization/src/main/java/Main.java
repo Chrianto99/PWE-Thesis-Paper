@@ -1,5 +1,4 @@
 import Graph.*;
-import Node.Tile;
 import Node.TileConfig;
 import Node.TxConfig;
 import RoomGeometry.Room;
@@ -17,7 +16,7 @@ public class Main {
         double wavelength = c / frequency;
 
         // Create Room
-        double[] roomDims = new double[]{10, 6, 4}; // Room dimensions x,y,z
+        double[] roomDims = new double[]{12, 8, 5}; // Room dimensions x,y,z
         int numSpheres = 5;
         double pathLossExponent = 2;
         RoomHandler roomHandler = new RoomHandler(); // Handles room creation (walls and obstacles)

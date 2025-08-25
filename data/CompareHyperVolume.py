@@ -14,7 +14,7 @@ numGens = 49
 results_path = f"Graphs_{roomDims[0]}x{roomDims[1]}x{roomDims[2]}/results/"
 graph_path = f"/{numTiles}Tiles_{numUsers}Users"
 
-algorithm_names = ["NSGAII", "RBAS","RBAS-NSGAII-LS","BruteForce"]
+algorithm_names = ["RBAS", "HERA","NSGAII","BruteForce"]
 
 # Reference point for hypervolume (should be worse than all objective values)
 

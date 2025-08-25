@@ -36,7 +36,6 @@ public class Surface {
         setLimits(xLims, yLims, null);
         computeArea();
 
-
     }
 
     public void initializeSurfaceXZ(double[] xLims, double[] zLims, double offset) {

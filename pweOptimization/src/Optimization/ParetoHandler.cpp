@@ -3,6 +3,7 @@
 //
 #include "Optimization/ParetoHandler.h"
 
+
 set<Solution> ParetoHandler::fastNonDominatedSorting(vector<Solution>& solutions) {
     vector<vector<Solution *>> fronts;
     unordered_map<Solution *, int> dominationCount;
@@ -102,6 +103,21 @@ bool ParetoHandler::updateParetoArchive(set<Solution>& paretoArchive, set<Soluti
     set<Solution> newParetoArchive = getFirstFront(combinedFront);
 
     paretoUpdated = !(paretoArchive == newParetoArchive);
+
+    if (newParetoArchive.size() > PARETO_ARCHIVE_MAX_SIZE){
+        vector<Solution> pav = vector<Solution> (newParetoArchive.begin(),newParetoArchive.end());
+        calculateCrowdingDistance(pav);
+
+        sort(pav.begin(), pav.end(), [](const Solution& a, const Solution& b) {
+            return a.getCrowdingDistance() > b.getCrowdingDistance();
+
+        });
+        pav.resize(PARETO_ARCHIVE_MAX_SIZE);
+
+        set<Solution> trimmedArchive(pav.begin(), pav.end());
+
+        newParetoArchive = trimmedArchive;
+    }
 
     paretoArchive = newParetoArchive;
 

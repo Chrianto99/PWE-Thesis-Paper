@@ -13,6 +13,7 @@
 #include "Optimization/Algorithm.h"
 #include "Optimization/RBAS.h"
 #include "Optimization/NSGA-II.h"
+#include "Optimization/HERA.h"
 
 class DataHandler {
 
@@ -21,18 +22,26 @@ private:
     AlgorithmOutput data;
     double intensityFactor, evaporationRate, alpha;
     double mutationChance;
+    double slope;
+    int N;
 
 public:
 
     DataHandler() = default;
 
-    void setMOACOParams(double intensityFactor, double evaporationRate, double alpha){
+    void setHERAParameters(double slope, double alpha, int N) {
+        this->slope = slope;
+        this->alpha = alpha;
+        this->N = N;
+    }
+
+    void setMOACOParams(double intensityFactor, double evaporationRate, double alpha) {
         this->intensityFactor = intensityFactor;
         this->evaporationRate = evaporationRate;
         this->alpha = alpha;
     }
 
-    void setNSGAParams(double mutationChance){
+    void setNSGAParams(double mutationChance) {
         this->mutationChance = mutationChance;
     }
 
@@ -42,8 +51,9 @@ public:
     map<int, vector<vector<double>>>
     createFronts(const map<int, vector<Solution>> &output, const vector<string> &objectiveLabels);
 
-    void runSimulation(string algorithm, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations, int numRepetitions ,int roomDims[3]);
-
+    void
+    runSimulation(string algorithm, bool localSearch, int numTiles, int numUsers, int numGraphs, int numGenerations,
+                  int numRepetitions, int roomDims[3]);
 
 
 };

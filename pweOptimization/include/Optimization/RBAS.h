@@ -25,7 +25,6 @@ private:
     double evaporationRate;
     double intensityFactor; // reward multiplier
     double alpha; // [0,1] defines relational rewarding between front ranks (large alpha --> elitism)
-    vector<Solution> ants;
 public:
 
     RBAS(Algorithm &algorithm, double evaporationRate, double intensityFactor, double alpha) :
@@ -39,7 +38,7 @@ public:
 
     void runBruteForce();
 
-    void sendAnts();
+    vector<Solution> sendAnts(int num);
 
     void updatePheromones(vector<Solution> &ants);
 

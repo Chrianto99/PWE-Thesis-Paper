@@ -76,20 +76,6 @@ int ModeHandler::chooseMode(int tileId) {
 
 }
 
-void ModeHandler::activateRandomModes(SystemState &systemState) {
-
-    for (auto tile: graph->getTiles()) {
-
-        uniform_int_distribution<int> dist(0, graph->getNumModes(tile->getId()) - 1);  // Define the range [0, 19]
-        int mode = dist(randGen);   // Generate random number
-        systemState.addActiveMode({tile->getId(), mode});
-        tile->setActive(true);
-        tile->setActiveMode(mode);
-
-
-    }
-
-}
 
 void ModeHandler::modifyModeLikelihood(vector<pair<int, int>> &modeList, double amount) {
 
