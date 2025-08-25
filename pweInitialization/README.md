@@ -1,3 +1,43 @@
+# Instructions:
+
+## Prerequisites
+
+* Java JDK installed
+* Maven installed (`mvn -v` to check)
+
+## Build and Run with Maven
+
+1. **Navigate to the project directory**
+
+```bash
+cd /path/to/your/project
+```
+
+2. **Clean and build the project**
+
+```bash
+mvn clean install
+```
+
+* Downloads all dependencies 
+* Compiles your code
+* Runs tests (JUnit)
+* Packages the app into a JAR in `target/`
+
+3. **Run the project**
+Run main.java
+
+
+## Notes
+
+* Every time a new dependency is added to `pom.xml`, run:
+
+```bash
+mvn clean install
+```
+
+to ensure all dependencies are downloaded and compiled.
+
 
 
 # 📡 Programmable Wireless Environment (PWE) Graph Simulator
